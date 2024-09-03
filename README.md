@@ -1,5 +1,8 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8338226.svg)](https://doi.org/10.5281/zenodo.8338226)
 
+<!-- README.md -->
+[![cov](https://clmould/PROCESS-clair.github.io/<repo>/badges/coverage.svg)](https://github.com/clmould/PROCESS-clair/<repo>/actions)
++ 
 # PROCESS
 
 **Here are the [PROCESS docs](https://ukaea.github.io/PROCESS/).**
