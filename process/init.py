@@ -279,7 +279,7 @@ def init_all_module_vars():
     constants.init_constants()
     init_current_drive_variables()
     init_primary_pumping_variables()
-    init_pfcoil_variables()
+    # init_pfcoil_variables()
     init_structure_variables()
     init_vacuum_variables()
     init_pf_power_variables()
