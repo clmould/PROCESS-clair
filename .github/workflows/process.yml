@@ -262,7 +262,7 @@ jobs:
     runs-on: ubuntu-latest
     # depends on tracking; only runs upon merge to main
     # needs: tracking
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     steps:
       - name: Setup python and hatch
         uses: Fusion-Power-Plant-Framework/fppf-actions/setup-hatch@c6af22fc8d00be67cca53a61177301462f499fb2
