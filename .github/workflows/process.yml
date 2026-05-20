@@ -261,7 +261,7 @@ jobs:
       cancel-in-progress: false
     runs-on: ubuntu-latest
     # depends on tracking; only runs upon merge to main
-    needs: tracking
+    # needs: tracking
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Setup python and hatch
