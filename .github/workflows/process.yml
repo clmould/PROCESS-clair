@@ -256,9 +256,9 @@ jobs:
 
   examples:
     # Job to make examples browser link
-    concurrency:
-      group: docs-jobs
-      cancel-in-progress: false
+    # concurrency:
+    #   group: docs-jobs
+    #   cancel-in-progress: false
     runs-on: ubuntu-latest
     # depends on tracking; only runs upon merge to main
     # needs: tracking
