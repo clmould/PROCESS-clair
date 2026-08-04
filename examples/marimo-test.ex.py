@@ -2,7 +2,7 @@
 # Test notebook
 
 # %%
-!pip install process
+#! uvx marimo edit --sandbox marimo-test.ex.py
 # %%
 # Test notebook - run process on LT
 import shutil
