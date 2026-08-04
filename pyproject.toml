@@ -132,7 +132,7 @@ markers = [
 output-format = "concise"
 
 [tool.marimo.runtime]
-pythonpath = ["examples"]
+pythonpath = ["process"]
  
 
 [tool.ruff]
