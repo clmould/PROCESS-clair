@@ -1,9 +1,8 @@
 # %%
 # Test notebook
-import subprocess
 
-
-subprocess.run("uvx marimo edit --sandbox marimo-test.ex.py", check=True)
+# %%
+!pip install process
 # %%
 # Test notebook - run process on LT
 import shutil
