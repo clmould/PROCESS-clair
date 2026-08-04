@@ -131,7 +131,8 @@ markers = [
 [tool.ty.terminal]
 output-format = "concise"
 
-[tool.marimo.runtime]pythonpath = ["examples"]
+[tool.marimo.runtime]
+pythonpath = ["examples"]
  
 
 [tool.ruff]
