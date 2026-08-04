@@ -1,8 +1,10 @@
+# %%
+# Test notebook
 import subprocess
 
 
 subprocess.run("uvx marimo edit --sandbox marimo-test.ex.py", check=True)
-
+# %%
 # Test notebook - run process on LT
 import shutil
 import tempfile
