@@ -7,7 +7,7 @@
 import subprocess
 
 
-subprocess.call("pip", "install", "process")
+subprocess.call(["pip", "install", "process"])
 # %%
 # Test notebook - run process on LT
 import shutil
