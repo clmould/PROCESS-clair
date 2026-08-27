@@ -48,10 +48,15 @@
 # in the examples folder.
 
 # %%
-hide_cell = True
+hide_code = True
 import subprocess
 
 subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
+
+from fsspec.implementations.github import GithubFileSystem
+
+repo = GithubFileSystem(org="ukaea", repo="PROCESS")
+
 # %%
 # %load_ext autoreload
 # %autoreload 2
