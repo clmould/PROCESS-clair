@@ -55,8 +55,13 @@ subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"]
 
 from fsspec.implementations.github import GithubFileSystem
 
-repo = GithubFileSystem(org="ukaea", repo="PROCESS")
+process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", branch="main")
 
+INDAT_path = "github://examples/data/large_tokamak_IN.DAT"
+INDAT = process_repo.download(
+    INDAT_path,
+    "",
+)
 # %%
 # %load_ext autoreload
 # %autoreload 2
@@ -67,15 +72,11 @@ from pathlib import Path
 
 from process.main import SingleRun
 
-# Define input file name relative to project dir, then copy to temp dir
-input_file = "large_tokamak_IN.DAT"
 
-# Copy the file to avoid polluting the project directory with example files
-temp_dir = tempfile.TemporaryDirectory()
-input_path = Path(temp_dir.name) / "large_tokamak_IN.DAT"
-shutil.copy(input_file, input_path)
+input_path = INDAT
 
-# Run process on an input file in a temporary directory
+input_path = Path("examples/data/large_tokamak_IN.DAT")
+
 single_run = SingleRun(input_path.as_posix())
 single_run.run()
 
