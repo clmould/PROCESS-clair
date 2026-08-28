@@ -75,7 +75,7 @@ from process.main import SingleRun
 
 input_path = INDAT
 
-input_path = Path("examples/data/large_tokamak_IN.DAT")
+input_path = Path("large_tokamak_IN.DAT")
 
 single_run = SingleRun(input_path.as_posix())
 single_run.run()
@@ -102,7 +102,3 @@ plot_summary(single_run.mfile_path, output_format="none", show=True)
 # Print some values on the CostModel instance
 print(f"Heat transport system: {single_run.data.costs.c226:.3e} M$")
 print(f"Electrical plant equipment: {single_run.data.costs.c24:.3e} M$")
-
-# %%
-# Clean up
-temp_dir.cleanup()
