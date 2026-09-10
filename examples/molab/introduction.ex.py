@@ -66,14 +66,10 @@ INDAT = process_repo.download(
 # %load_ext autoreload
 # %autoreload 2
 
-import shutil
-import tempfile
 from pathlib import Path
 
 from process.main import SingleRun
 
-
-input_path = INDAT
 
 input_path = Path("large_tokamak_IN.DAT")
 
