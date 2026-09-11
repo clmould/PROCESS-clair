@@ -71,9 +71,9 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
-    hide_code = True
+    # imports for running on molab
     import subprocess
 
     subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
@@ -92,14 +92,9 @@ def _():
 
 @app.cell
 def _():
-    # magic command not supported in marimo; please file an issue to add support
-    # %load_ext autoreload
-    # '%autoreload 2' command supported automatically in marimo
-
     from pathlib import Path
 
     from process.main import SingleRun
-
 
     input_path = Path("large_tokamak_IN.DAT")
 
