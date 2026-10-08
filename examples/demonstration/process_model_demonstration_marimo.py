@@ -12,6 +12,7 @@ def _():
 
 
 @app.cell(hide_code=True)
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 25px;">
@@ -54,7 +55,7 @@ def _(mo):
     <details>
     <summary style="font-weight: bold; cursor: pointer;">🔧 Key Features</summary>
 
-    - **Modelling approach** - employs **low-fidelity (0D-1D)** models for most powerplant systems (plasma, magnets, structures, and cost).
+    - **Modelling approach** - employs **low-fidelity (0D–1D)** models for most powerplant systems (plasma, magnets, structures, and cost).
     - **Integration** - system-level behaviour emerges as as PROCESS couples the models and resolves their competing requirements.
     - **Speed** - computationally efficient models and runs quickly, enabling **rapid design iteration** and **broad exploration** of design space.
 
@@ -94,6 +95,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -101,6 +103,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -147,13 +150,13 @@ def _(mo):
       <summary><b>🧭 2. Define the Design Space</b></summary>
       <div style="margin-left: 1em; margin-top: 0.5em;">
 
-      The **design space** is the space over which PROCESS can trade variable values - exploring how different physics and engineering choices affect performance.
+      The **design space** is the space over which PROCESS can trade variable values – exploring how different physics and engineering choices affect performance.
 
       It is defined in two ways:
 
       - **Constraints**, which ensure technical feasibility:
-        - ⚖️ *Equality constraints* - must be satisfied exactly (e.g. power balance, radial build).
-        - 🚦 *Inequality constraints* - must not be violated (e.g. stress, field, temperature, or wall load limits).
+        - ⚖️ *Equality constraints* – must be satisfied exactly (e.g. power balance, radial build).
+        - 🚦 *Inequality constraints* – must not be violated (e.g. stress, field, temperature, or wall load limits).
 
       - **Iteration variables**, which the solver adjusts as it searches for a solution:
         - ⚡ Plasma current
@@ -172,7 +175,7 @@ def _(mo):
       <summary><b>🔧 3. Select an Optimisation Objective</b></summary>
       <div style="margin-left: 1em; margin-top: 0.5em;">
 
-      Choose what PROCESS should *optimise* within the feasible region - the **objective function**.
+      Choose what PROCESS should *optimise* within the feasible region – the **objective function**.
       Common goals include:
 
       - Minimising the **major radius** (compact design)
@@ -221,6 +224,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -228,6 +232,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -248,7 +253,7 @@ def _(mo):
 
       ### ▶️ Running PROCESS: Large Tokamak Example
 
-      We now demonstrate **PROCESS** in action using the **Large Tokamak** example - a generic reactor concept similar in scale to **EU DEMO**.
+      We now demonstrate **PROCESS** in action using the **Large Tokamak** example – a generic reactor concept similar in scale to **EU DEMO**.
 
       In this optimisation, PROCESS links together detailed **plasma physics**, **engineering**, and **cost** models.
       We'll apply the steps we described in the previous section.
@@ -309,16 +314,16 @@ def _(mo):
 
       Within this region, PROCESS varies key **optimisation variables**:
 
-      - Plasma temperature - 12 keV
-      - Plasma density - \(7.5\times10^{19}\,\mathrm{m^{-3}}\)
-      - Toroidal magnetic field - 5.7 T
-      - Edge safety factor - 3.5
-      - Central solenoid thickness - 0.5 m
-      - Machine bore - 2.0 m
-      - TF winding pack thickness - 0.5 m
-      - TF conduit thickness - 0.008 m
-      - TF copper fraction - 0.8
-      - Non-inductive current fraction - 0.4
+      - Plasma temperature – 12 keV
+      - Plasma density – \(7.5\times10^{19}\,\mathrm{m^{-3}}\)
+      - Toroidal magnetic field – 5.7 T
+      - Edge safety factor – 3.5
+      - Central solenoid thickness – 0.5 m
+      - Machine bore – 2.0 m
+      - TF winding pack thickness – 0.5 m
+      - TF conduit thickness – 0.008 m
+      - TF copper fraction – 0.8
+      - Non-inductive current fraction – 0.4
 
       These parameters define the **design levers** PROCESS can move to reach an optimised state.
 
@@ -363,6 +368,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell
@@ -382,6 +388,7 @@ def _(single_run):
     from process.core.io.plot import plot_summary
 
     plot_summary(single_run.mfile_path)
+    return
 
 
 @app.cell(hide_code=True)
@@ -470,6 +477,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell
@@ -489,6 +497,7 @@ def _():
         page = file_handle[page_no]
         page_img = page.get_pixmap()
         page_img.save(f"figures/summary_page_{page_no}.png")
+    return
 
 
 @app.cell(hide_code=True)
@@ -535,6 +544,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -575,7 +585,7 @@ def _(mo):
 
     - ⚙️ **Plasma Geometry:** Defined by major/minor radius, elongation, and triangularity.
     - 🧲 **Magnetic Fields:** Toroidal and poloidal fields shaping plasma confinement.
-    - 🟥 **Fusion Power:** Output from D-T and D-D reactions.
+    - 🟥 **Fusion Power:** Output from D–T and D–D reactions.
     - 🔵 **β:** Plasma pressure vs. magnetic field pressure - critical for plasma stability and performance.
     - ⬜ **$\tau_E$:** Energy confinement time - measures how well the plasma retains heat (IPB98(y,2) scaling).
     - 🟩 **V·s:** Volt-second capacity - determines the maximum possible duration for the inductively driven current pulse.
@@ -593,6 +603,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -600,6 +611,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -655,6 +667,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -662,6 +675,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -716,6 +730,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -723,6 +738,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -762,7 +778,7 @@ def _(mo):
 
     - ☀️ **Fusion power** is generated in the plasma. Some of this energy is lost immediately as **radiation** or **escaping particles**.
     - 🧱 The remaining energy is **captured by the first wall and blanket**, where it becomes **thermal power** carried by the primary coolant. The divertor acts as an exhaust and manages heat.
-    - ⚙️ This **primary thermal power** drives the **turbine-generator system**, producing **gross electric power**.
+    - ⚙️ This **primary thermal power** drives the **turbine–generator system**, producing **gross electric power**.
     - 🔌 A portion of that electricity is **recirculated** to operate internal systems - including **heating and current drive (H&CD)**, **pumps**, **cryogenics**, and **vacuum systems**.
     - ⚡ After accounting for these internal loads, the plant delivers its **net electrical power (P<sub>net</sub>)** to the grid.
 
@@ -772,6 +788,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -779,6 +796,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -831,9 +849,9 @@ def _(mo):
     ---
 
     <details>
-    <summary><b>📈 Crack-Growth Law (Paris-Walker)</b></summary>
+    <summary><b>📈 Crack-Growth Law (Paris–Walker)</b></summary>
 
-    The <b>CS_fatigue</b> module in <b>PROCESS</b> integrates the Paris-Walker law to estimate
+    The <b>CS_fatigue</b> module in <b>PROCESS</b> integrates the Paris–Walker law to estimate
     the number of cycles to failure:
 
       $$
@@ -842,11 +860,11 @@ def _(mo):
 
     where:
 
-    - **da/dN** - crack growth per cycle
-    - **C, m** - material constants
-    - **ΔK** - stress-intensity factor range
-    - **R** - stress ratio
-    - **γ** - Walker mean-stress correction exponent
+    - **da/dN** – crack growth per cycle
+    - **C, m** – material constants
+    - **ΔK** – stress-intensity factor range
+    - **R** – stress ratio
+    - **γ** – Walker mean-stress correction exponent
 
     Integrating gives the total number of **cycles to failure (N)** from an **initial crack size (a₀)**.
 
@@ -888,6 +906,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -895,6 +914,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell
@@ -1009,7 +1029,7 @@ def _(mo):
     <details open>
     <summary><b>💪 Dependence on Hoop Stress</b></summary>
 
-    - The effect of **maximum hoop stress (σₘₐₓ)** follows the trend predicted by Paris-Walker-type crack-growth behaviour.
+    - The effect of **maximum hoop stress (σₘₐₓ)** follows the trend predicted by Paris–Walker–type crack-growth behaviour.
     - Increasing stress from **500 MPa → 800 MPa** shortens predicted lifetime by nearly an **order of magnitude**.
     - Reducing **peak stress** is therefore crucial for extending CS operational life.
 
@@ -1060,6 +1080,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1067,6 +1088,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1184,6 +1206,7 @@ def _(mo):
     </div>
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1191,6 +1214,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1265,6 +1289,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell
@@ -1273,12 +1298,12 @@ def _(SingleRun, np):
 
     def run_non_inductive_sweep(fni_values, input_file="data/large_tokamak_eval_IN.DAT"):
         """
-        Sweep the non-inductive plasma current fraction (f_c_plasma_non_inductive)
-        and record plasma behaviour, system performance, and key constraints.
+            Sweep the non-inductive plasma current fraction (f_c_plasma_non_inductive)
+            and record plasma behaviour, system performance, and key constraints.
         # -----------------------------
         # Non-inductive current fraction sweep
 
-        Each iteration starts from a fresh PROCESS state for consistency.
+            Each iteration starts from a fresh PROCESS state for consistency.
         """
         n = len(fni_values)
         p_plant_electric_net_mw = np.empty(n)
@@ -1455,6 +1480,7 @@ def _(plt):
 @app.cell
 def _(plot_non_inductive_sweep, results_nonind):
     plot_non_inductive_sweep(results_nonind, show=True)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1567,6 +1593,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1574,6 +1601,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell
@@ -1626,7 +1654,7 @@ def _(Path, plt):
         (lines2, labels2) = (
             ax2.get_legend_handles_labels()
         )  # ----------------------------------
-        ax1.legend(lines1 + lines2, labels1 + labels2, loc="best")
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc="center left")
         ax1.grid(True)
         plt.tight_layout()  # (1) Cost on left y-axis
         output_path = save_dir / filename
@@ -1644,6 +1672,7 @@ def _(Path, plt):
 @app.cell
 def _(plot_non_inductive_cost, results_nonind):
     plot_non_inductive_cost(results_nonind)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1699,6 +1728,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1706,6 +1736,7 @@ def _(mo):
     mo.md(r"""
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1755,6 +1786,7 @@ def _(mo):
 
     ---
     """)
+    return
 
 
 @app.cell(hide_code=True)
@@ -1785,6 +1817,7 @@ def _(mo):
 
     </div>
     """)
+    return
 
 
 if __name__ == "__main__":
