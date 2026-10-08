@@ -12,7 +12,6 @@ def _():
 
 
 @app.cell(hide_code=True)
-@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 25px;">
@@ -371,12 +370,41 @@ def _(mo):
     return
 
 
+@app.cell(hide_code=True)
+@app.cell
+def _():
+    # marimo imports
+    import subprocess
+
+    subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
+
+    from fsspec.implementations.github import GithubFileSystem
+
+    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="5a81dac")
+
+    INDAT_path = "github://examples/demonstration/data/large_tokamak_eval_IN.DAT"
+    INDAT = process_repo.download(INDAT_path, "")
+    figures_path = "github://examples/demonstration/figures"
+    import os
+    from pathlib import Path
+
+    if not Path("figures").exists():
+        os.mkdir("figures")
+
+    folder_path = "examples/demonstration/figures/"
+    destination = Path("figures/")
+
+    remote_files = process_repo.ls(folder_path)
+    process_repo.get(remote_files, destination.as_posix(), recursive=True)
+    return (Path,)
+
+
 @app.cell
 def _():
     from process.main import SingleRun
 
     # Run process on an input file in a temporary directory
-    single_run = SingleRun("data/large_tokamak_eval_IN.DAT")
+    single_run = SingleRun("large_tokamak_eval_IN.DAT")
     single_run.run()
     return SingleRun, single_run
 
@@ -485,13 +513,13 @@ def _():
     # want plot proc 6 (main summary), 7 (profiles), 24 (pol + tor), 43 (power balance)
     import pymupdf
 
-    file = "data/large_tokamak_eval_MFILE.DAT.SUMMARY.pdf"
+    file = "large_tokamak_eval_MFILE.DAT.SUMMARY.pdf"
     file_handle = pymupdf.open(file)
     page = file_handle[0]
     page_img = page.get_pixmap()
     page_img.save("test.png")
 
-    summary_file = "data/large_tokamak_eval_MFILE.DAT.SUMMARY.pdf"
+    summary_file = "large_tokamak_eval_MFILE.DAT.SUMMARY.pdf"
     file_handle = pymupdf.open(summary_file)
     for page_no in [5, 6, 23, 42]:
         page = file_handle[page_no]
@@ -1296,7 +1324,7 @@ def _(mo):
 def _(SingleRun, np):
     from process.core.solver.constraints import ConstraintManager
 
-    def run_non_inductive_sweep(fni_values, input_file="data/large_tokamak_eval_IN.DAT"):
+    def run_non_inductive_sweep(fni_values, input_file="large_tokamak_eval_IN.DAT"):
         """
             Sweep the non-inductive plasma current fraction (f_c_plasma_non_inductive)
             and record plasma behaviour, system performance, and key constraints.
@@ -1383,9 +1411,7 @@ def _(np, run_non_inductive_sweep):
 
 
 @app.cell
-def _(plt):
-    from pathlib import Path
-
+def _(Path, plt):
     def plot_non_inductive_sweep(results, save_dir="figures", show=False):
         """
         Generate and save plots for the non-inductive current fraction
@@ -1416,11 +1442,13 @@ def _(plt):
         ax1.set_xlabel("Non-inductive current fraction (f_c_plasma_non_inductive)")
         ax1.set_ylabel("Power (MW)")
         ax1.set_title("Power balance vs non-inductive current fraction")
-        ax1.legend(loc="best")  # ----------------------------------
-        ax1.grid(True)  # (1) Power balance plot
+        ax1.legend(loc="best")
+        ax1.grid(True)
         figs["power_balance"] = fig1  # ----------------------------------
-        fig1.savefig(save_dir / "power_balance.png", dpi=300, bbox_inches="tight")
-        (fig2, ax2) = plt.subplots(figsize=(6, 4))
+        fig1.savefig(
+            save_dir / "power_balance.png", dpi=300, bbox_inches="tight"
+        )  # (1) Power balance plot
+        (fig2, ax2) = plt.subplots(figsize=(6, 4))  # ----------------------------------
         ax2.plot(
             fni,
             results["con16"],
@@ -1468,13 +1496,15 @@ def _(plt):
             fig3.savefig(save_dir / "cap_cost.png", dpi=300, bbox_inches="tight")
         if show:
             for fig in figs.values():
-                fig.show()  # ----------------------------------
-        else:  # (2) Constraint responses
+                fig.show()
+        else:
             plt.close("all")  # ----------------------------------
-        print(f"✅ Saved {len(figs)} plots to {save_dir.resolve()}")
+        print(
+            f"✅ Saved {len(figs)} plots to {save_dir.resolve()}"
+        )  # (2) Constraint responses
         return figs  # ----------------------------------  # (3) Capital cost (optional)  # ----------------------------------  # Display or close  # ----------------------------------
 
-    return Path, plot_non_inductive_sweep
+    return (plot_non_inductive_sweep,)
 
 
 @app.cell
