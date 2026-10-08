@@ -12,6 +12,34 @@ def _():
 
 
 @app.cell(hide_code=True)
+def _():
+    # marimo imports
+    import subprocess
+
+    subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
+
+    from fsspec.implementations.github import GithubFileSystem
+
+    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="5a81dac")
+
+    INDAT_path = "github://examples/demonstration/data/large_tokamak_eval_IN.DAT"
+    INDAT = process_repo.download(INDAT_path, "")
+    figures_path = "github://examples/demonstration/figures"
+    import os
+    from pathlib import Path
+
+    if not Path("figures").exists():
+        os.mkdir("figures")
+
+    folder_path = "examples/demonstration/figures/"
+    destination = Path("figures/")
+
+    remote_files = process_repo.ls(folder_path)
+    process_repo.get(remote_files, destination.as_posix(), recursive=True)
+    return (Path,)
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 25px;">
@@ -368,35 +396,6 @@ def _(mo):
     </div>
     """)
     return
-
-
-@app.cell(hide_code=True)
-@app.cell
-def _():
-    # marimo imports
-    import subprocess
-
-    subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
-
-    from fsspec.implementations.github import GithubFileSystem
-
-    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="5a81dac")
-
-    INDAT_path = "github://examples/demonstration/data/large_tokamak_eval_IN.DAT"
-    INDAT = process_repo.download(INDAT_path, "")
-    figures_path = "github://examples/demonstration/figures"
-    import os
-    from pathlib import Path
-
-    if not Path("figures").exists():
-        os.mkdir("figures")
-
-    folder_path = "examples/demonstration/figures/"
-    destination = Path("figures/")
-
-    remote_files = process_repo.ls(folder_path)
-    process_repo.get(remote_files, destination.as_posix(), recursive=True)
-    return (Path,)
 
 
 @app.cell
