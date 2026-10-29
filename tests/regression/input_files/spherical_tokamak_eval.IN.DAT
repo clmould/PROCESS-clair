@@ -8,7 +8,6 @@ n_equality_constraints = 2
 * Equalities
 icc = 2 * Global power balance
 icc = 93 * Fuel-ion equilibrium
-icc = 11 * Radial build
 
 * Inequalities
 icc = 9 * Fusion power upper limit
@@ -35,9 +34,7 @@ boundu(4) = 25.0
 ixc = 6 * nd_plasma_electrons_vol_avg
 boundl(6) = 0.5d+20
 boundu(6) = 5.0d+20
-ixc = 29 * bore
-boundl(29) = 0.1
-boundu(29) = 0.8
+
 *---------------Cs Fatigue Variables---------------*
 
 
