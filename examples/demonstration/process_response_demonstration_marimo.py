@@ -17,7 +17,6 @@ def _():
     # import process, and
     import subprocess
 
-
     subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
 
     from fsspec.implementations.github import GithubFileSystem
@@ -36,9 +35,8 @@ def _():
     folder_path = "examples/demonstration/"
     destination = Path("demo/")
 
-
     remote_files = process_repo.ls(folder_path)
-    process_repo.get(remote_files, destination.as_posix(), recursive=True)``
+    process_repo.get(remote_files, destination.as_posix(), recursive=True)
 
 
 @app.cell(hide_code=True)
@@ -752,7 +750,6 @@ def _(mo):
 
 @app.cell
 def _():
-    from pathlib import Path
 
     import process_response_popcon as explorer
 
