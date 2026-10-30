@@ -10,30 +10,51 @@ def _():
 
     return (mo,)
 
-
 @app.cell(hide_code=True)
-def _():
+  def _(mo):
     # imports for marimo
-    # import process, and
+    # import process, and the folders from example/demonstration/
     import subprocess
 
     subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
 
+
+    # subprocess.call(["pip", "install", "-q", "git+https://https://github.com/clmould/PROCESS-clair/tree/molab"])
+
     from fsspec.implementations.github import GithubFileSystem
 
-    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="5a81dac")
+    # process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="5a81dac")
+    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="8ab91eb")
 
-    INDAT_path = "github://examples/demonstration/data/large_tokamak_eval_IN.DAT"
-    INDAT = process_repo.download(INDAT_path, "")
+
+    # INDAT_path = "github://examples/demonstration/data/large_tokamak_eval_IN.DAT"
+    # INDAT = process_repo.download(INDAT_path, "")
 
     import os
     from pathlib import Path
 
-    if not Path("demo").exists():
-        os.mkdir("demo")
+    if not Path("data").exists():
+        os.mkdir("data")
+    if not Path("figures").exists():
+        os.mkdir("figures")
+    if not Path("process_response_popcon").exists():
+        os.mkdir("process_response_popcon")
+    # need to import process_response_popcon/, figures/ and data/
 
-    folder_path = "examples/demonstration/"
-    destination = Path("demo/")
+    folder_path = "examples/demonstration/data"
+    destination = Path("data/")
+
+    remote_files = process_repo.ls(folder_path)
+    process_repo.get(remote_files, destination.as_posix(), recursive=True)
+
+    folder_path = "examples/demonstration/figures"
+    destination = Path("figures/")
+
+    remote_files = process_repo.ls(folder_path)
+    process_repo.get(remote_files, destination.as_posix(), recursive=True)
+
+    folder_path = "examples/demonstration/process_response_popcon"
+    destination = Path("process_response_popcon/")
 
     remote_files = process_repo.ls(folder_path)
     process_repo.get(remote_files, destination.as_posix(), recursive=True)
@@ -750,12 +771,11 @@ def _(mo):
 
 @app.cell
 def _():
+    from pathlib import Path
 
     import process_response_popcon as explorer
 
-    PLASMA_INPUT_FILE = (
-        "../../tests/regression/input_files/spherical_tokamak_eval.IN.DAT"
-    )
+    PLASMA_INPUT_FILE = "data/spherical_tokamak_eval.IN.DAT"
 
     DATA_DIR = Path("data")
 
