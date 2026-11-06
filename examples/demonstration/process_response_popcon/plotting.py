@@ -151,6 +151,7 @@ def _dense_feasibility(
 def plot_response(
     result: dict[str, Any],
     *,
+    control_indices: tuple[int, ...] | None = None,
     show_solution_cloud: bool = True,
     show_reference: bool = False,
     reference_label: str = "Reference PROCESS solution",
@@ -162,9 +163,11 @@ def plot_response(
 
     The Te-ne plane is used to visualise the two governing consistency
     equations.  Their contours are computed from the cached fixed-state map for
-    the currently selected controls.  Exact pre-solved PROCESS solutions are
-    overlaid as coloured markers rather than as a filled background, so only
-    genuine equality-satisfying solutions are shown as performance data.
+    the currently selected controls.  Pass control_indices=(i, j, ...) to
+    choose the sample along each control axis; omitting it selects the
+    reference controls. Exact pre-solved PROCESS solutions are overlaid as
+    coloured markers rather than as a filled background, so only genuine
+    equality-satisfying solutions are shown as performance data.
     """
     controls = result["controls"]
     control_axes = result["control_axes"]
@@ -173,17 +176,21 @@ def plot_response(
     limits = result["limits"]
     solutions = result["solutions"]
 
-    def selected_indices(selected: dict[str, float]) -> tuple[int, ...]:
-        return tuple(
-            int(np.argmin(np.abs(axis - selected[f"control_{i}"])))
-            for i, axis in enumerate(control_axes)
+    # The marimo sliders select an integer index along each control axis.
+    # The original reference slice remains the default for existing callers.
+    if control_indices is None:
+        indices = tuple(int(i) for i in result["reference_indices"])
+    else:
+        indices = tuple(int(i) for i in control_indices)
+
+    if len(indices) != len(control_axes) or any(
+        index < 0 or index >= len(axis) for index, axis in zip(indices, control_axes)
+    ):
+        raise ValueError(
+            f"Invalid control_indices={indices}; expected one valid index "
+            f"for each of the {len(control_axes)} control axes."
         )
 
-    selected = {
-        f"control_{i}": float(axis[result["reference_indices"][i]])
-        for i, axis in enumerate(control_axes)
-    }
-    indices = selected_indices(selected)
     map_data = _build_map_slice(result, indices)
 
     te_values = map_data["te_values"]
@@ -949,7 +956,8 @@ def show_popcon_contours(
 
 
 __all__ = [
+    "plot_response",
+    "plot_jupyter_notebook_widgets",
     "show_popcon",
     "show_popcon_contours",
-    "show_response",
 ]

@@ -1,80 +1,86 @@
 import marimo
 
 __generated_with = "0.25.2"
-app = marimo.App()
+app = marimo.App(auto_download=["html"])
 
 
-@app.cell
-def _():
-    import marimo as mo
+# @app.cell(hide_code=True)
+# def _(mo):
+#     # imports for marimo
+#     # import process, and the folders from example/demonstration/
+#     import subprocess
 
-    return (mo,)
+#     subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
+
+#     # subprocess.call(["pip", "install", "-q", "git+https://https://github.com/clmould/PROCESS-clair/tree/molab"])
+
+#     from fsspec.implementations.github import GithubFileSystem
+
+#     # process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="5a81dac")
+#     process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="8ab91eb")
+
+#     # INDAT_path = "github://examples/demonstration/data/large_tokamak_eval_IN.DAT"
+#     # INDAT = process_repo.download(INDAT_path, "")
+
+#     import os
+#     from pathlib import Path
+
+#     if not Path("data").exists():
+#         os.mkdir("data")
+#     if not Path("figures").exists():
+#         os.mkdir("figures")
+#     if not Path("process_response_popcon").exists():
+#         os.mkdir("process_response_popcon")
+#     # need to import process_response_popcon/, figures/ and data/
+
+#     folder_path = "examples/demonstration/data"
+#     destination = Path("data/")
+
+#     remote_files = process_repo.ls(folder_path)
+#     process_repo.get(remote_files, destination.as_posix(), recursive=True)
+
+#     folder_path = "examples/demonstration/figures"
+#     destination = Path("figures/")
+
+#     remote_files = process_repo.ls(folder_path)
+#     process_repo.get(remote_files, destination.as_posix(), recursive=True)
+
+#     folder_path = "examples/demonstration/process_response_popcon"
+#     destination = Path("process_response_popcon/")
+
+#     remote_files = process_repo.ls(folder_path)
+#     process_repo.get(remote_files, destination.as_posix(), recursive=True)
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    # imports for marimo
-    # import process, and the folders from example/demonstration/
-    import subprocess
-
-    subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
-
-    # subprocess.call(["pip", "install", "-q", "git+https://https://github.com/clmould/PROCESS-clair/tree/molab"])
-
-    from fsspec.implementations.github import GithubFileSystem
-
-    # process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="5a81dac")
-    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="8ab91eb")
-
-    # INDAT_path = "github://examples/demonstration/data/large_tokamak_eval_IN.DAT"
-    # INDAT = process_repo.download(INDAT_path, "")
-
+def _():
     import os
+    import sys
     from pathlib import Path
 
-    if not Path("data").exists():
-        os.mkdir("data")
-    if not Path("figures").exists():
-        os.mkdir("figures")
-    if not Path("process_response_popcon").exists():
-        os.mkdir("process_response_popcon")
-    # need to import process_response_popcon/, figures/ and data/
+    import marimo as mo
 
-    folder_path = "examples/demonstration/data"
-    destination = Path("data/")
-
-    remote_files = process_repo.ls(folder_path)
-    process_repo.get(remote_files, destination.as_posix(), recursive=True)
-
-    folder_path = "examples/demonstration/figures"
-    destination = Path("figures/")
-
-    remote_files = process_repo.ls(folder_path)
-    process_repo.get(remote_files, destination.as_posix(), recursive=True)
-
-    folder_path = "examples/demonstration/process_response_popcon"
-    destination = Path("process_response_popcon/")
-
-    remote_files = process_repo.ls(folder_path)
-    process_repo.get(remote_files, destination.as_posix(), recursive=True)
+    # Find the local demonstration directory
+    repo_root = Path.home() / "development" / "PROCESS"
+    demo_dir = repo_root / "examples" / "demonstration"
+    # Make relative paths (data/, figures/, etc.) work
+    os.chdir(demo_dir)
+    # Allow local Python modules to be imported
+    if str(demo_dir) not in sys.path:
+        sys.path.insert(0, str(demo_dir))
+    # Check required directories exist
+    for folder in ("data", "figures", "process_response_popcon"):
+        path = demo_dir / folder
+        if not path.is_dir():
+            raise FileNotFoundError(f"Missing directory: {path}")
+    print(f"Using local demonstration files from: {demo_dir}")
+    return Path, mo
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     # PROCESS: From Integrated Reactor Design to Plasma Equilibrium Exploration
-
-    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 25px;">
-
-    <div style="
-      flex: 1 1 60%;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-    ">
 
     **PROCESS** is a systems code for the conceptual design and optimisation of fusion power plants.
 
@@ -85,68 +91,47 @@ def _(mo):
 
     ---
 
-    <details>
-    <summary style="font-weight: bold; cursor: pointer;">🌍 Role in fusion design studies</summary>
+    /// details | 🌍 Role in fusion design studies
 
     - Explore broad reactor design spaces quickly.
     - Test whether proposed designs satisfy coupled physics and engineering requirements.
     - Identify trade-offs between plasma performance, magnets, geometry, power balance and plant performance.
     - Provide an integrated starting point for more detailed design studies.
 
-    </details>
+    ///
 
     ---
 
-    <details>
-    <summary style="font-weight: bold; cursor: pointer;">🔧 Modelling approach</summary>
+    /// details | 🔧 Modelling approach
 
     - **Reduced-order models** — mainly 0D–1D descriptions of the plasma and plant systems.
     - **Coupled calculation** — changing one part of the reactor can alter many others.
     - **Fast evaluation** — suitable for parameter scans, optimisation and uncertainty studies.
 
-    </details>
+    ///
 
     ---
 
-    <details open>
-    <summary style="font-weight: bold; cursor: pointer;">🧭 Learning goals</summary>
+    /// details | 🧭 Learning goals
 
     By the end of the notebook you should understand:
 
     1. How to represent a fusion power plant as a coupled system of models;
     2. How a self-consistent fusion power plant plasma state is defined;
+
     3. How changing design choices moves the solution through design space;
     4. **How PROCESS helps us make answer the above points and make design decisions** by exposing the trade-offs between performance, feasibility and operating margin.
 
-    </details>
-
-    </div>
-
-    <div style="
-      flex: 1 1 50%;
-      min-width: 300px;
-      text-align: center;
-      box-sizing: border-box;
-    ">
-      <img src="figures/Slide7.jpeg"
-           alt="PROCESS Fusion Power Plant Design"
-           style="width: 100%; max-width: 850px; height: auto; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-      <p style="font-size: 13px; color: #555; margin-top: 6px;">
-        A tokamak is coupled to the systems that convert fusion power into useful electrical output.
-      </p>
-    </div>
-
-    </div>
+    ///
     """)
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
-    ---
-    """)
-    return
+    mo.image(
+        "figures/Slide 7.png",
+        caption="A tokamak is coupled to the systems that convert fusion power into useful electrical output",
+    )
 
 
 @app.cell(hide_code=True)
@@ -156,7 +141,6 @@ def _(mo):
 
     To initialise the notebook, we can run a normal PROCESS input file.
     """)
-    return
 
 
 @app.cell
@@ -175,7 +159,6 @@ def _(mo):
 
     PROCESS can generate a summary PDF which contains data and plots to describe the fusion power plant we have designed. We call this here to generate figures for the notebook.
     """)
-    return
 
 
 @app.cell
@@ -183,7 +166,6 @@ def _(single_run):
     from process.core.io.plot import plot_summary
 
     plot_summary(single_run.mfile_path)
-    return
 
 
 @app.cell
@@ -192,7 +174,6 @@ def _():
 
     summary_file = "data/large_tokamak_eval_MFILE.DAT.SUMMARY.pdf"
     file_handle = pymupdf.open(summary_file)
-
     for page_no in [
         5,
         6,
@@ -200,33 +181,19 @@ def _():
         page = file_handle[page_no]
         page_img = page.get_pixmap()
         page_img.save(f"figures/summary_page_{page_no}.png")
-    return
+
+
+@app.cell
+def _(mo):
+    mo.image(
+        "figures/summary_page_5.png",
+        caption="Integrated plasma, magnetic and systems quantities from one PROCESS design.",
+    )
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <div style="display: flex; align-items: center; justify-content: space-between; gap: 25px; flex-wrap: wrap;">
-
-    <div style="flex: 1 1 38%; min-width: 300px; text-align: center; box-sizing: border-box;">
-      <img src="figures/summary_page_5.png"
-           alt="Tokamak Summary Plot"
-           style="width: 100%; max-width: 40vw; height: auto; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-      <p style="font-size: 13px; color: #555; margin-top: 6px;">
-        Integrated plasma, magnetic and systems quantities from one PROCESS design.
-      </p>
-    </div>
-
-    <div style="
-      flex: 1 1 60%;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-    ">
-
     ### PROCESS: Integrated Reactor Design
 
     A single PROCESS solution calculates quantities across the whole plant, including:
@@ -241,55 +208,16 @@ def _(mo):
     The important point is not any one number: **all of these quantities belong to the same coupled reactor design.**
 
     A change to one part of the reactor can therefore propagate through many other systems.
-
-    </div>
-    </div>
     """)
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ---
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <div style="display: flex; align-items: center; justify-content: space-between; gap: 25px;">
-
-    <!-- Left column: Image -->
-    <div style="
-      flex: 1 1 38%;
-      min-width: 300px;
-      text-align: center;
-      box-sizing: border-box;
-    ">
-      <img src="figures/summary_page_23.png"
-           alt="Tokamak Poloidal Cross-Section"
-           style="width: 100%; max-width: 40vw; height: auto; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-      <p style="font-size: 13px; color: #555; margin-top: 6px;">
-        Poloidal and toroidal cross-sections of the tokamak showing major structural and magnetic systems.
-      </p>
-    </div>
-
-    <!-- Right column: Text -->
-    <div style="
-      flex: 1 1 60%;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-    ">
-
     ### **Poloidal and Toroidal Cross-Sections**
 
     We also use PROCESS to create initial **cross-section views of the tokamak reactor:**
+
     1. **Poloidal section** (vertical cut through the plasma)
     2. **Toroidal section** (horizontal slice around the machine’s ring).
 
@@ -301,35 +229,20 @@ def _(mo):
     - 🟥 **Cryostat:** The outer shell keeping the superconducting magnets cold and isolated.
 
     PROCESS is used to calculate these cross sections self-consistently ensuring all the components align and there are no overlaps.
-
-    </div>
-
-    </div>
     """)
-    return
+
+
+@app.cell
+def _(mo):
+    mo.image(
+        "figures/summary_page_23.png",
+        caption="Poloidal and toroidal cross-sections of the tokamak showing major structural and magnetic systems.",
+    )
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ---
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <div style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-      max-width: 1350px;
-    ">
-
     ## 🧩 PROCESS: Problem Formulation
 
     PROCESS can be thought of as a **complex function which maps inputs to outputs** describing a steady-state fusion power plant.
@@ -338,17 +251,11 @@ def _(mo):
     \mathbf y = F(\mathbf x,\mathbf d,\mathbf u,\boldsymbol{\theta})
     $$
 
-    <div style="
-      margin-top: 1em;
-      padding: 0.8em 1em;
-      border-left: 4px solid #777;
-      background: rgba(127,127,127,0.08);
-      border-radius: 4px;
-    ">
+    /// admonition
 
     <b>In simple terms:</b> we specify what we know or choose, PROCESS solves the coupled physics and engineering problem, and returns the resulting reactor state.
 
-    </div>
+    ///
 
     ---
 
@@ -365,9 +272,7 @@ def _(mo):
     $$
 
     - 🏗️ **Design variables** describe the system we choose to build — geometry, magnetic field, component dimensions and technology choices.
-
     - 🎚️ **Control variables** describe how the system is operated — auxiliary heating, fuelling, current drive and other actuator-like quantities.
-
     - 🎲 **Uncertain parameters** describe quantities that are not controlled precisely — confinement scalings, efficiencies, material properties and model assumptions.
 
     ---
@@ -383,33 +288,12 @@ def _(mo):
     \text{Outputs}
     }
     $$
-
-    </div>
     """)
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ---
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <div style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-      max-width: 1350px;
-    ">
-
     ## Steady-State Plasma
 
     The prescribed inputs alone do not completely define the reactor state. PROCESS must also determine a **self-consistent plasma operating state**.
@@ -430,66 +314,21 @@ def _(mo):
 
     ---
 
-    <details open style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      margin-top: 1em;
-      margin-bottom: 1em;
-    ">
-    <summary style="
-      font-weight: bold;
-      font-size: inherit;
-      cursor: pointer;
-      padding: 0.35em 0;
-    ">
-    🔥 Global plasma power balance
-    </summary>
-
-    <div style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-top: 0.6em;
-    ">
+    /// details | 🔥 Global plasma power balance
 
     The power entering the plasma must balance the power leaving it,
 
-    $$
-    P_{\mathrm{heating}} = P_{\mathrm{loss}}
-    $$
+    $$P_{\mathrm{heating}} = P_{\mathrm{loss}}$$
 
     Heating includes alpha-particle, ohmic and auxiliary heating, while losses include transport and plasma radiation.
 
     In PROCESS this is represented by the **global power-balance equation**.
 
-    </div>
-    </details>
+    ///
 
     ---
 
-    <details open style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      margin-top: 1em;
-      margin-bottom: 1em;
-    ">
-    <summary style="
-      font-weight: bold;
-      font-size: inherit;
-      cursor: pointer;
-      padding: 0.35em 0;
-    ">
-    ⛽ Fuel-ion balance
-    </summary>
-
-    <div style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-top: 0.6em;
-    ">
+    /// details | ⛽ Fuel-ion balance
 
     The supplied fuel rate must be consistent with the rate at which fuel is consumed and lost from the plasma,
 
@@ -501,33 +340,11 @@ def _(mo):
 
     In PROCESS this is represented by the **fuel-ion balance equation**.
 
-    </div>
-    </details>
+    ///
 
     ---
 
-    <details style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      margin-top: 1em;
-      margin-bottom: 1em;
-    ">
-    <summary style="
-      font-weight: bold;
-      font-size: inherit;
-      cursor: pointer;
-      padding: 0.35em 0;
-    ">
-    📏 What is a residual?
-    </summary>
-
-    <div style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-top: 0.6em;
-    ">
+    /// details | 📏 What is a residual?
 
     PROCESS expresses each governing equation as a **residual**.
 
@@ -572,8 +389,7 @@ def _(mo):
 
     so both governing equations are satisfied simultaneously.
 
-    </div>
-    </details>
+    ///
 
     ---
 
@@ -586,38 +402,21 @@ def _(mo):
     $$
     \mathbf y = F(\mathbf x,\mathbf d,\mathbf u,\boldsymbol{\theta}).
     $$
-
-    </div>
     """)
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ---
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    <div style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-      max-width: 1350px;
-    ">
-
     ## 🎛️ How Does the Plasma Respond to Heating and Fuelling Choices?
 
     Now that we have defined the PROCESS problem, we can use it to ask a simple but important question:
 
-    > **If we change the controls, how does the steady-state plasma operating point respond?**
+    /// admonition
+
+    **If we change the controls, how does the steady-state plasma operating point respond?**
+
+    ///
 
     For this example we vary only two control variables:
 
@@ -636,26 +435,7 @@ def _(mo):
 
     ---
 
-    <details style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      margin-top: 1em;
-      margin-bottom: 1.2em;
-    ">
-
-    <summary style="
-      font-weight: bold;
-      font-size: inherit;
-      cursor: pointer;
-      padding: 0.45em 0;
-    ">
-    🗺️ How to Read the Plasma Solution Space
-    </summary>
-
-    <div style="
-      padding-top: 0.8em;
-    ">
+    /// details | 🗺️ How to Read the Plasma Solution Space
 
     For each combination of heating and fuelling, PROCESS varies $T_e$ and $n_e$ until the two governing equations are satisfied.
 
@@ -709,8 +489,7 @@ def _(mo):
 
     A solution can therefore satisfy both governing equations while still violating one or more operating limits.
 
-    </div>
-    </details>
+    ///
 
     ---
 
@@ -720,26 +499,7 @@ def _(mo):
 
     Change them and watch how the resulting PROCESS solution moves through the plasma operating space.
 
-    <details open style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      margin-top: 1em;
-      margin-bottom: 1em;
-    ">
-
-    <summary style="
-      font-weight: bold;
-      font-size: inherit;
-      cursor: pointer;
-      padding: 0.35em 0;
-    ">
-    🔎 Questions to explore
-    </summary>
-
-    <div style="
-      padding-top: 0.6em;
-    ">
+    /// details | 🔎 Questions to explore
 
     - 🔥 At fixed fuelling, how does increasing extra heating move the plasma operating point?
     - ⛽ At fixed heating, how does increasing the fuelling rate move it?
@@ -748,34 +508,22 @@ def _(mo):
     - 🚧 How does moving through the solution space change the margin to the density and beta limits?
     - 🤝 Do the two controls appear to work with or against each other in different parts of the operating space?
 
-    </div>
-    </details>
+    ///
 
-    <div style="
-      margin-top: 1.2em;
-      padding: 0.8em 1em;
-      border-left: 4px solid #777;
-      background: rgba(127,127,127,0.08);
-      border-radius: 4px;
-    ">
+    /// admonition
 
     <b>Aim:</b> understand the link between the <b>controls you choose</b> and the <b>plasma state that results</b>, and how performance and constraint margin change as that solution moves.
 
-    </div>
-
-    </div>
+    ///
     """)
-    return
 
 
 @app.cell
-def _():
+def _(Path):
     import process_response_popcon as explorer
 
     PLASMA_INPUT_FILE = "data/spherical_tokamak_eval.IN.DAT"
-
     DATA_DIR = Path("data")
-
     HEATING_CONTROL = {
         "variable": "current_drive.p_hcd_primary_extra_heat_mw",
         "range": (0.0, 80.0),
@@ -786,7 +534,6 @@ def _():
         "format": ".1f",
         "include_reference": True,
     }
-
     FUEL_CONTROL = {
         "variable": "physics.molflow_plasma_fuelling",
         "range": (4.2e21, 5.2e21),
@@ -797,11 +544,8 @@ def _():
         "format": ".3f",
         "include_reference": True,
     }
-
     PLASMA_CONTROLS = [HEATING_CONTROL, FUEL_CONTROL]
-
     PLASMA_MAP_POINTS = 10
-
     REBUILD_PLASMA_SOLUTIONS = False
     REBUILD_PLASMA_MAPS = False
     PRECOMPUTE_PLASMA_MAPS = True
@@ -819,7 +563,7 @@ def _():
     )
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     DATA_DIR,
     EXPLORER_WORKERS,
@@ -874,10 +618,42 @@ def _(
     return (plasma_response,)
 
 
-@app.cell
-def _(explorer, plasma_response):
-    explorer.show_response(plasma_response)
-    return
+@app.cell(hide_code=True)
+def _(mo, plasma_response):
+    # Select only previously sampled heating and fuelling values.
+    _axes = plasma_response["control_axes"]
+    _reference = plasma_response["reference_indices"]
+    plasma_heating_slider = mo.ui.slider(
+        steps=[float(_v) for _v in _axes[0]],
+        value=float(_axes[0][_reference[0]]),
+        label="Heating (MW)",
+        show_value=True,
+    )
+    plasma_fuel_slider = mo.ui.slider(
+        steps=[float(_v / 1e21) for _v in _axes[1]],
+        value=float(_axes[1][_reference[1]] / 1e21),
+        label="Fuelling (×10²¹ s⁻¹)",
+        show_value=True,
+    )
+    mo.vstack([plasma_heating_slider, plasma_fuel_slider])
+    return plasma_fuel_slider, plasma_heating_slider
+
+
+@app.cell(hide_code=True)
+def _(explorer, plasma_fuel_slider, plasma_heating_slider, plasma_response):
+    _axes = plasma_response["control_axes"]
+    _heat_idx = min(
+        range(len(_axes[0])),
+        key=lambda _i: abs(float(_axes[0][_i]) - plasma_heating_slider.value),
+    )
+    _fuel_idx = min(
+        range(len(_axes[1])),
+        key=lambda _i: abs(float(_axes[1][_i] / 1e21) - plasma_fuel_slider.value),
+    )
+    _figure, _axis = explorer.plot_response(
+        plasma_response,
+        control_indices=(_heat_idx, _fuel_idx),
+    )
 
 
 @app.cell(hide_code=True)
@@ -885,22 +661,11 @@ def _(mo):
     mo.md(r"""
     ---
     """)
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <div style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-      max-width: 1350px;
-    ">
-
     ## ⚖️ Exercise 2: Heating, Fuelling and Impurity Seeding
 
     The previous example showed how the plasma responds when we change **heating** and **fuelling**.
@@ -935,14 +700,6 @@ def _(mo):
 
     ---
 
-    <div style="
-      margin-top: 1.5em;
-      padding: 1.1em 1.3em;
-      border: 1px solid rgba(127,127,127,0.35);
-      border-radius: 8px;
-      background: rgba(127,127,127,0.06);
-    ">
-
     ### 👥 Group Exercise: Find a Feasible Solution
 
     Use **heating, fuelling and argon seeding** to move the PROCESS solution until all three selected limits are satisfied:
@@ -950,12 +707,6 @@ def _(mo):
     - 🚧 **density**
     - 🚧 **beta**
     - 🚧 **divertor protection**
-
-    <div style="
-      margin-top: 1em;
-      padding-top: 0.8em;
-      border-top: 1px solid rgba(127,127,127,0.25);
-    ">
 
     #### 🔎 While you explore
 
@@ -966,14 +717,6 @@ def _(mo):
     - whether different controls work with or against each other;
     - which constraint is hardest to satisfy.
 
-    </div>
-
-    <div style="
-      margin-top: 1em;
-      padding-top: 0.8em;
-      border-top: 1px solid rgba(127,127,127,0.25);
-    ">
-
     #### ✅ When you find a feasible solution
 
     Be ready to explain:
@@ -983,31 +726,17 @@ def _(mo):
     - Which constraint became limiting?
     - Could a different combination of controls give another feasible solution?
 
-    </div>
-
-    <div style="
-      margin-top: 1.2em;
-      padding: 0.8em 1em;
-      border-left: 4px solid #777;
-      background: rgba(127,127,127,0.10);
-      border-radius: 4px;
-    ">
+    /// admonition
 
     <b>Aim:</b> do not just find a feasible point — understand <b>why</b> it is feasible and what trade-offs were required to reach it.
 
-    </div>
-
-    </div>
-
-    </div>
+    ///
     """)
-    return
 
 
 @app.cell
 def _(PLASMA_INPUT_FILE):
     IMPURITY_INPUT_FILE = PLASMA_INPUT_FILE
-
     IMPURITY_CONTROLS = [
         {
             "variable": "current_drive.p_hcd_primary_extra_heat_mw",
@@ -1039,11 +768,10 @@ def _(PLASMA_INPUT_FILE):
             "include_reference": True,
         },
     ]
-
     REBUILD_IMPURITY_SOLUTIONS = False
     REBUILD_IMPURITY_MAPS = False
     PRECOMPUTE_IMPURITY_MAPS = True
-    IMPURITY_WORKERS = 10
+    IMPURITY_WORKERS = 2
     return (
         IMPURITY_CONTROLS,
         IMPURITY_INPUT_FILE,
@@ -1115,10 +843,59 @@ def _(
     return (impurity_response,)
 
 
-@app.cell
-def _(explorer, impurity_response):
-    explorer.show_response(impurity_response, show_solution_cloud=False)
-    return
+@app.cell(hide_code=True)
+def _(impurity_response, mo):
+    # Controls are ordered heating, argon, fuelling in IMPURITY_CONTROLS.
+    _axes = impurity_response["control_axes"]
+    _reference = impurity_response["reference_indices"]
+    impurity_heating_slider = mo.ui.slider(
+        steps=[float(_v) for _v in _axes[0]],
+        value=float(_axes[0][_reference[0]]),
+        label="Heating (MW)",
+        show_value=True,
+    )
+    impurity_argon_slider = mo.ui.slider(
+        steps=[float(_v * 100) for _v in _axes[1]],
+        value=float(_axes[1][_reference[1]] * 100),
+        label="Argon seeding (% nₑ)",
+        show_value=True,
+    )
+    impurity_fuel_slider = mo.ui.slider(
+        steps=[float(_v / 1e21) for _v in _axes[2]],
+        value=float(_axes[2][_reference[2]] / 1e21),
+        label="Fuelling (×10²¹ s⁻¹)",
+        show_value=True,
+    )
+    mo.vstack([impurity_heating_slider, impurity_argon_slider, impurity_fuel_slider])
+    return impurity_argon_slider, impurity_fuel_slider, impurity_heating_slider
+
+
+@app.cell(hide_code=True)
+def _(
+    explorer,
+    impurity_argon_slider,
+    impurity_fuel_slider,
+    impurity_heating_slider,
+    impurity_response,
+):
+    _axes = impurity_response["control_axes"]
+    _heat_idx = min(
+        range(len(_axes[0])),
+        key=lambda _i: abs(float(_axes[0][_i]) - impurity_heating_slider.value),
+    )
+    _argon_idx = min(
+        range(len(_axes[1])),
+        key=lambda _i: abs(float(_axes[1][_i] * 100) - impurity_argon_slider.value),
+    )
+    _fuel_idx = min(
+        range(len(_axes[2])),
+        key=lambda _i: abs(float(_axes[2][_i] / 1e21) - impurity_fuel_slider.value),
+    )
+    _figure, _axis = explorer.plot_response(
+        impurity_response,
+        control_indices=(_heat_idx, _argon_idx, _fuel_idx),
+        show_solution_cloud=False,
+    )
 
 
 @app.cell(hide_code=True)
@@ -1126,22 +903,11 @@ def _(mo):
     mo.md(r"""
     ---
     """)
-    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <div style="
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-      max-width: 1350px;
-    ">
-
     ## From Exploration to Optimisation
 
     In this notebook we changed a small number of controls ourselves and watched how the PROCESS solution moved through the available design space.
@@ -1173,50 +939,33 @@ def _(mo):
     $$
     \boxed{
     \text{Explore the solution space}
-    \quad\longrightarrow\quad
+    \qquad\longrightarrow\qquad
     \text{understand the trade-offs}
-    \quad\longrightarrow\quad
+    \qquad\longrightarrow\qquad
     \text{formalise the design objective}
     }
     $$
 
     **We decide what matters, and encode those engineering priorities in the optimisation problem, and use the solver to find the optimimum solution**
-
-    </div>
     """)
+
+
+@app.cell
+def _():
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 25px; flex-wrap: wrap;">
-
-    <div style="
-      flex: 1 1 58%;
-      font-family: 'Segoe UI', sans-serif;
-      font-size: calc(0.95rem + 0.3vw);
-      line-height: 1.6;
-      text-align: left;
-      padding-left: 2em;
-      padding-right: 2em;
-      box-sizing: border-box;
-      max-width: 1350px;
-    ">
-
     ### PROCESS
 
-    🔗 **PROCESS source code:** [github.com/ukaea/PROCESS](https://github.com/ukaea/PROCESS)
+    🔗 **PROCESS source code:** [github.com/ukaea/PROCESS](https\://github.com/ukaea/PROCESS)
 
     ### Fusion Training Program
 
-    This material forms part of the **Fusion Training Program**: [Nucleus](https://nucleus.ukaea.uk/page/11260)
-
-
-    </div>
-    </div>
+    This material forms part of the **Fusion Training Program**: [Nucleus](https\://nucleus.ukaea.uk/page/11260)
     """)
-    return
 
 
 if __name__ == "__main__":
