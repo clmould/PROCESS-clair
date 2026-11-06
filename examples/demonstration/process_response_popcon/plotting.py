@@ -6,12 +6,12 @@ from typing import Any
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
+from IPython.display import display
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-import numpy as np
 from scipy.interpolate import RegularGridInterpolator
-from IPython.display import display
 
 from .process_runner import _format_control_value, _to_float
 from .response import _build_map_slice, _control_label
@@ -21,11 +21,13 @@ try:
 except ImportError:
     widgets = None
 
+
 def _contour_if_spanned(ax, x, y, z, level, **kwargs):
     finite = z[np.isfinite(z)]
     if finite.size and finite.min() <= level <= finite.max():
         return ax.contour(x, y, z, levels=[level], **kwargs)
     return None
+
 
 def _shade_violated_region(
     ax,
@@ -84,10 +86,12 @@ def _shade_violated_region(
 
     return fill
 
+
 def _limit_mark(value: float) -> str:
     if not np.isfinite(value):
         return "n/a"
     return "✓" if value >= 0.0 else "✗"
+
 
 def _solution_slice_for_display(
     result: dict[str, Any],
@@ -101,8 +105,7 @@ def _solution_slice_for_display(
         slicer = slice(None)
     else:
         slicer = tuple(
-            [slice(None), slice(None)]
-            + [indices[k] for k in range(2, n_controls)]
+            [slice(None), slice(None)] + [indices[k] for k in range(2, n_controls)]
         )
 
     return (
@@ -111,6 +114,7 @@ def _solution_slice_for_display(
         np.asarray(solutions["performance"][slicer], dtype=float).reshape(-1),
         np.asarray(solutions["converged"][slicer], dtype=bool).reshape(-1),
     )
+
 
 def _dense_feasibility(
     te: np.ndarray,
@@ -143,7 +147,8 @@ def _dense_feasibility(
     violated = finite & np.any(dense < 0.0, axis=2)
     return te_grid, ne_grid, feasible, violated
 
-def show_response(
+
+def plot_response(
     result: dict[str, Any],
     *,
     show_solution_cloud: bool = True,
@@ -151,6 +156,7 @@ def show_response(
     reference_label: str = "Reference PROCESS solution",
     shade_violations: bool = True,
     hatch_violations: bool = True,
+    show_limits: bool = True,
 ) -> None:
     """Show an interactive PROCESS Response view.
 
@@ -173,295 +179,380 @@ def show_response(
             for i, axis in enumerate(control_axes)
         )
 
-    def draw(show_limits=True, **selected):
-        indices = selected_indices(selected)
-        map_data = _build_map_slice(result, indices)
+    selected = {
+        f"control_{i}": float(axis[result["reference_indices"][i]])
+        for i, axis in enumerate(control_axes)
+    }
+    indices = selected_indices(selected)
+    map_data = _build_map_slice(result, indices)
 
-        te_values = map_data["te_values"]
-        ne_values = map_data["ne_values"]
-        te_grid, ne_grid = np.meshgrid(te_values, ne_values / 1.0e20)
-        # Each plotted field carries its own finite-value mask.  Do not use a
-        # shared map-validity mask here: an unrelated consistency equation can
-        # be non-finite at a forced Te-ne state while another equality or limit
-        # is still perfectly evaluable.
+    te_values = map_data["te_values"]
+    ne_values = map_data["ne_values"]
+    te_grid, ne_grid = np.meshgrid(te_values, ne_values / 1.0e20)
+    # Each plotted field carries its own finite-value mask.  Do not use a
+    # shared map-validity mask here: an unrelated consistency equation can
+    # be non-finite at a forced Te-ne state while another equality or limit
+    # is still perfectly evaluable.
 
-        # Fixed presentation layout.  Do not use constrained_layout here:
-        # long legend/footer text in the information panel can otherwise force
-        # Matplotlib to shrink the Te-ne axes into a tall, narrow shape.
-        fig = plt.figure(figsize=(13.6, 5.6))
-        gs = fig.add_gridspec(
-            1,
-            2,
-            width_ratios=(1.25, 0.62),
-            wspace=0.30,
-        )
-        fig.subplots_adjust(left=0.07, right=0.985, bottom=0.13, top=0.92)
+    # Fixed presentation layout.  Do not use constrained_layout here:
+    # long legend/footer text in the information panel can otherwise force
+    # Matplotlib to shrink the Te-ne axes into a tall, narrow shape.
+    fig = plt.figure(figsize=(13.6, 5.6))
+    gs = fig.add_gridspec(
+        1,
+        2,
+        width_ratios=(1.25, 0.62),
+        wspace=0.30,
+    )
+    fig.subplots_adjust(left=0.07, right=0.985, bottom=0.13, top=0.92)
 
-        ax = fig.add_subplot(gs[0, 0])
-        ax.set_box_aspect(1)  # keep the Te-ne plotting panel square
+    ax = fig.add_subplot(gs[0, 0])
+    ax.set_box_aspect(1)  # keep the Te-ne plotting panel square
 
-        # Anchor the colourbar directly to the plotting axes.  A separate
-        # GridSpec column leaves a large gap once set_box_aspect(1) shrinks the
-        # axes inside its slot; an inset axis stays tight to the visible square.
-        cax = inset_axes(
-            ax,
-            width="4.5%",
-            height="100%",
-            loc="lower left",
-            bbox_to_anchor=(1.035, 0.0, 1.0, 1.0),
-            bbox_transform=ax.transAxes,
-            borderpad=0,
-        )
+    # Anchor the colourbar directly to the plotting axes.  A separate
+    # GridSpec column leaves a large gap once set_box_aspect(1) shrinks the
+    # axes inside its slot; an inset axis stays tight to the visible square.
+    cax = inset_axes(
+        ax,
+        width="4.5%",
+        height="100%",
+        loc="lower left",
+        bbox_to_anchor=(1.035, 0.0, 1.0, 1.0),
+        bbox_transform=ax.transAxes,
+        borderpad=0,
+    )
 
-        info_ax = fig.add_subplot(gs[0, 1])
-        info_ax.axis("off")
+    info_ax = fig.add_subplot(gs[0, 1])
+    info_ax.axis("off")
 
-        # ------------------------------------------------------------------
-        # Exact pre-solved PROCESS solutions on the currently selected slice.
-        # First two controls span the displayed family; any remaining controls
-        # define the slice.
-        # ------------------------------------------------------------------
-        cloud_te, cloud_ne, cloud_perf, cloud_conv = _solution_slice_for_display(result, indices)
-        exact_mask = (
-            cloud_conv
-            & np.isfinite(cloud_te)
-            & np.isfinite(cloud_ne)
-            & np.isfinite(cloud_perf)
-        )
+    # ------------------------------------------------------------------
+    # Exact pre-solved PROCESS solutions on the currently selected slice.
+    # First two controls span the displayed family; any remaining controls
+    # define the slice.
+    # ------------------------------------------------------------------
+    cloud_te, cloud_ne, cloud_perf, cloud_conv = _solution_slice_for_display(
+        result, indices
+    )
+    exact_mask = (
+        cloud_conv
+        & np.isfinite(cloud_te)
+        & np.isfinite(cloud_ne)
+        & np.isfinite(cloud_perf)
+    )
 
-        finite_perf = cloud_perf[exact_mask]
-        perf_lo = perf_hi = np.nan
-        if finite_perf.size:
-            perf_lo = float(np.nanmin(finite_perf))
-            perf_hi = float(np.nanmax(finite_perf))
-            if np.isclose(perf_hi, perf_lo):
-                perf_hi = perf_lo + 1.0
+    finite_perf = cloud_perf[exact_mask]
+    perf_lo = perf_hi = np.nan
+    if finite_perf.size:
+        perf_lo = float(np.nanmin(finite_perf))
+        perf_hi = float(np.nanmax(finite_perf))
+        if np.isclose(perf_hi, perf_lo):
+            perf_hi = perf_lo + 1.0
 
-            norm = plt.Normalize(vmin=perf_lo, vmax=perf_hi)
-            cmap = plt.get_cmap(performance_spec.get("cmap", "viridis"))
-
-            if show_solution_cloud:
-                ax.scatter(
-                    cloud_te[exact_mask],
-                    cloud_ne[exact_mask] / 1.0e20,
-                    c=cloud_perf[exact_mask],
-                    cmap=cmap,
-                    norm=norm,
-                    s=115,
-                    alpha=0.92,
-                    edgecolors="white",
-                    linewidths=0.9,
-                    zorder=4,
-                )
-
-            mappable = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
-            mappable.set_array([])
-            cbar = fig.colorbar(mappable, cax=cax)
-            cbar.set_label(performance_spec["label"])
-        else:
-            cax.axis("off")
-
-        # All plotted markers are exact equality-satisfying PROCESS solutions.
-        # Inequality constraints are separate feasibility checks.  Dashed limit
-        # contours show where a selected physics or engineering quantity reaches
-        # its allowable bound; the selected-solution status is reported separately.
-        legend_items = []
-
-        # ------------------------------------------------------------------
-        # Consistency-equation and limit contours for the currently selected
-        # controls.  These are explanatory contours, not solution curves.  A
-        # dashed limit contour is the zero-margin locus: calculated value = bound.
-        # ------------------------------------------------------------------
-        for q, spec in enumerate(equalities):
-            # Plot this equality wherever *its own* residual is finite.
-            # Requiring all equalities to be finite would unnecessarily clip
-            # an otherwise valid contour.
-            field = np.asarray(map_data["equality_residuals"][:, :, q], dtype=float)
-            _contour_if_spanned(
-                ax, te_grid, ne_grid, field, 0.0,
-                colors=spec["color"], linewidths=spec["linewidth"], linestyles=spec["linestyle"],
-            )
-            legend_items.append(
-                Line2D([0], [0], color=spec["color"], linewidth=spec["linewidth"],
-                       linestyle=spec["linestyle"], label=spec["label"])
-            )
-
-        any_violated_region = False
-        if show_limits:
-            for q, spec in enumerate(limits):
-                # Limit contours use the finite values of this constraint only.
-                # A failure/NaN in C2, C93, or another inequality must not mask
-                # a limit that PROCESS can still evaluate at the same forced
-                # Te-ne state.
-                field = np.asarray(map_data["limit_margins"][:, :, q], dtype=float)
-
-                finite_field = field[np.isfinite(field)]
-                has_violation = bool(
-                    finite_field.size and np.any(finite_field < 0.0)
-                )
-                if shade_violations and has_violation:
-                    _shade_violated_region(
-                        ax,
-                        te_grid,
-                        ne_grid,
-                        field,
-                        color=spec["color"],
-                        hatch="xx" if hatch_violations else "",
-                    )
-                    any_violated_region = True
-
-                _contour_if_spanned(
-                    ax, te_grid, ne_grid, field, 0.0,
-                    colors=spec["color"],
-                    linewidths=spec["linewidth"],
-                    linestyles=spec["linestyle"],
-                )
-                legend_items.append(
-                    Line2D([0], [0], color=spec["color"], linewidth=spec["linewidth"],
-                           linestyle=spec["linestyle"], label=spec["label"])
-                )
-
-            if any_violated_region and shade_violations:
-                legend_items.append(
-                    Patch(
-                        facecolor="0.5",
-                        edgecolor="0.35",
-                        alpha=0.12,
-                        hatch="xx" if hatch_violations else None,
-                        label="Violated region",
-                    )
-                )
-
-        # Optional reference / optimised PROCESS solution.
-        if show_reference:
-            ax.plot(
-                result["reference"]["te"], result["reference"]["ne"] / 1.0e20,
-                marker='o', markersize=10, markerfacecolor='white', markeredgecolor='black',
-                markeredgewidth=1.5, linestyle='none', zorder=11,
-            )
-            legend_items.append(
-                Line2D(
-                    [0], [0], marker="o", markersize=8,
-                    markerfacecolor="white", markeredgecolor="black",
-                    markeredgewidth=1.4, linestyle="none", label=reference_label,
-                )
-            )
-
-        # Selected exact solution on top, coloured by its performance.
-        exact_te = float(solutions["te"][indices])
-        exact_ne = float(solutions["ne"][indices])
-        converged = bool(solutions["converged"][indices])
-        selected_perf = float(solutions["performance"][indices])
-
-        selected_face = 'black'
-        if np.isfinite(selected_perf) and np.isfinite(perf_lo):
-            norm = plt.Normalize(vmin=perf_lo, vmax=perf_hi)
-            cmap = plt.get_cmap(performance_spec.get("cmap", "viridis"))
-            selected_face = cmap(norm(selected_perf))
-
-        if converged and np.isfinite(exact_te) and np.isfinite(exact_ne):
-            ax.scatter(
-                [exact_te], [exact_ne / 1.0e20],
-                s=260,
-                marker="o",
-                facecolors=[selected_face],
-                edgecolors="black",
-                linewidths=2.0,
-                zorder=12,
-            )
-            ax.scatter(
-                [exact_te], [exact_ne / 1.0e20],
-                s=42, marker='o', facecolors='white', edgecolors='white', linewidths=0.0, zorder=13,
-            )
-            legend_items.append(
-                Line2D([0], [0], marker='o', markersize=11, markerfacecolor='gray',
-                       markeredgecolor='black', linestyle='none', label='Selected PROCESS solution')
-            )
+        norm = plt.Normalize(vmin=perf_lo, vmax=perf_hi)
+        cmap = plt.get_cmap(performance_spec.get("cmap", "viridis"))
 
         if show_solution_cloud:
+            ax.scatter(
+                cloud_te[exact_mask],
+                cloud_ne[exact_mask] / 1.0e20,
+                c=cloud_perf[exact_mask],
+                cmap=cmap,
+                norm=norm,
+                s=115,
+                alpha=0.92,
+                edgecolors="white",
+                linewidths=0.9,
+                zorder=4,
+            )
+
+        mappable = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+        mappable.set_array([])
+        cbar = fig.colorbar(mappable, cax=cax)
+        cbar.set_label(performance_spec["label"])
+    else:
+        cax.axis("off")
+
+    # All plotted markers are exact equality-satisfying PROCESS solutions.
+    # Inequality constraints are separate feasibility checks.  Dashed limit
+    # contours show where a selected physics or engineering quantity reaches
+    # its allowable bound; the selected-solution status is reported separately.
+    legend_items = []
+
+    # ------------------------------------------------------------------
+    # Consistency-equation and limit contours for the currently selected
+    # controls.  These are explanatory contours, not solution curves.  A
+    # dashed limit contour is the zero-margin locus: calculated value = bound.
+    # ------------------------------------------------------------------
+    for q, spec in enumerate(equalities):
+        # Plot this equality wherever *its own* residual is finite.
+        # Requiring all equalities to be finite would unnecessarily clip
+        # an otherwise valid contour.
+        field = np.asarray(map_data["equality_residuals"][:, :, q], dtype=float)
+        _contour_if_spanned(
+            ax,
+            te_grid,
+            ne_grid,
+            field,
+            0.0,
+            colors=spec["color"],
+            linewidths=spec["linewidth"],
+            linestyles=spec["linestyle"],
+        )
+        legend_items.append(
+            Line2D(
+                [0],
+                [0],
+                color=spec["color"],
+                linewidth=spec["linewidth"],
+                linestyle=spec["linestyle"],
+                label=spec["label"],
+            )
+        )
+
+    any_violated_region = False
+    if show_limits:
+        for q, spec in enumerate(limits):
+            # Limit contours use the finite values of this constraint only.
+            # A failure/NaN in C2, C93, or another inequality must not mask
+            # a limit that PROCESS can still evaluate at the same forced
+            # Te-ne state.
+            field = np.asarray(map_data["limit_margins"][:, :, q], dtype=float)
+
+            finite_field = field[np.isfinite(field)]
+            has_violation = bool(finite_field.size and np.any(finite_field < 0.0))
+            if shade_violations and has_violation:
+                _shade_violated_region(
+                    ax,
+                    te_grid,
+                    ne_grid,
+                    field,
+                    color=spec["color"],
+                    hatch="xx" if hatch_violations else "",
+                )
+                any_violated_region = True
+
+            _contour_if_spanned(
+                ax,
+                te_grid,
+                ne_grid,
+                field,
+                0.0,
+                colors=spec["color"],
+                linewidths=spec["linewidth"],
+                linestyles=spec["linestyle"],
+            )
             legend_items.append(
                 Line2D(
-                    [0], [0],
-                    marker="o",
-                    markersize=9,
-                    markerfacecolor="gray",
-                    markeredgecolor="white",
-                    linestyle="none",
-                    label="PROCESS solutions (C2 = 0, C93 = 0)",
+                    [0],
+                    [0],
+                    color=spec["color"],
+                    linewidth=spec["linewidth"],
+                    linestyle=spec["linestyle"],
+                    label=spec["label"],
                 )
             )
 
-        ax.set_xlabel(r"Volume-averaged electron temperature, $T_e$ [keV]")
-        ax.set_ylabel(r"Volume-averaged electron density, $n_e$ [$10^{20}$ m$^{-3}$]")
-        ax.set_title(result["title"])
-        ax.grid(alpha=0.15)
+        if any_violated_region and shade_violations:
+            legend_items.append(
+                Patch(
+                    facecolor="0.5",
+                    edgecolor="0.35",
+                    alpha=0.12,
+                    hatch="xx" if hatch_violations else None,
+                    label="Violated region",
+                )
+            )
 
-        info_ax.legend(
-            handles=legend_items,
-            loc='upper left', bbox_to_anchor=(0.0, 1.0), frameon=False,
-            fontsize=8.7, borderaxespad=0.0, handlelength=2.4, labelspacing=0.45,
+    # Optional reference / optimised PROCESS solution.
+    if show_reference:
+        ax.plot(
+            result["reference"]["te"],
+            result["reference"]["ne"] / 1.0e20,
+            marker="o",
+            markersize=10,
+            markerfacecolor="white",
+            markeredgecolor="black",
+            markeredgewidth=1.5,
+            linestyle="none",
+            zorder=11,
+        )
+        legend_items.append(
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                markersize=8,
+                markerfacecolor="white",
+                markeredgecolor="black",
+                markeredgewidth=1.4,
+                linestyle="none",
+                label=reference_label,
+            )
         )
 
-        control_lines = []
-        for dim, spec in enumerate(controls):
-            requested = float(control_axes[dim][indices[dim]])
-            actual = float(solutions["actual_controls"][indices + (dim,)])
-            label = _control_label(spec)
-            if np.isfinite(actual) and not np.isclose(actual, requested, rtol=1e-8, atol=0.0):
-                control_lines.append(
-                    f"{label:<12}= {_format_control_value(spec, actual)} "
-                    f"(asked {_format_control_value(spec, requested)})"
-                )
-            else:
-                control_lines.append(f"{label:<12}= {_format_control_value(spec, requested)}")
+    # Selected exact solution on top, coloured by its performance.
+    exact_te = float(solutions["te"][indices])
+    exact_ne = float(solutions["ne"][indices])
+    converged = bool(solutions["converged"][indices])
+    selected_perf = float(solutions["performance"][indices])
 
-        if converged:
-            diagnostic_lines = [
-                'Selected PROCESS solution', '', *control_lines, '',
-                f'Te          = {exact_te:.3f} keV',
-                f'ne          = {exact_ne/1e20:.3f} ×10²⁰ m⁻³',
-                f'{performance_spec["label"]:<12}= {selected_perf:.4g}',
-            ]
-            if equalities:
-                eq_values = solutions["equality_residuals"][indices]
-                diagnostic_lines.append('')
-                diagnostic_lines.extend(
-                    f"C{spec['constraint']} resid = {eq_values[q]:.2e}"
-                    for q, spec in enumerate(equalities)
-                )
-            if limits:
-                margin_values = solutions["limit_margins"][indices]
-                diagnostic_lines.append('')
-                diagnostic_lines.append('Inequality margins (+ feasible, 0 active):')
-                diagnostic_lines.extend(
-                    f"C{spec['constraint']:<3} margin = {margin_values[q]: .2e} "
-                    f"{_limit_mark(margin_values[q])}"
-                    for q, spec in enumerate(limits)
-                )
-            diagnostic = "\n".join(diagnostic_lines)
+    selected_face = "black"
+    if np.isfinite(selected_perf) and np.isfinite(perf_lo):
+        norm = plt.Normalize(vmin=perf_lo, vmax=perf_hi)
+        cmap = plt.get_cmap(performance_spec.get("cmap", "viridis"))
+        selected_face = cmap(norm(selected_perf))
+
+    if converged and np.isfinite(exact_te) and np.isfinite(exact_ne):
+        ax.scatter(
+            [exact_te],
+            [exact_ne / 1.0e20],
+            s=260,
+            marker="o",
+            facecolors=[selected_face],
+            edgecolors="black",
+            linewidths=2.0,
+            zorder=12,
+        )
+        ax.scatter(
+            [exact_te],
+            [exact_ne / 1.0e20],
+            s=42,
+            marker="o",
+            facecolors="white",
+            edgecolors="white",
+            linewidths=0.0,
+            zorder=13,
+        )
+        legend_items.append(
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                markersize=11,
+                markerfacecolor="gray",
+                markeredgecolor="black",
+                linestyle="none",
+                label="Selected PROCESS solution",
+            )
+        )
+
+    if show_solution_cloud:
+        legend_items.append(
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                markersize=9,
+                markerfacecolor="gray",
+                markeredgecolor="white",
+                linestyle="none",
+                label="PROCESS solutions (C2 = 0, C93 = 0)",
+            )
+        )
+
+    ax.set_xlabel(r"Volume-averaged electron temperature, $T_e$ [keV]")
+    ax.set_ylabel(r"Volume-averaged electron density, $n_e$ [$10^{20}$ m$^{-3}$]")
+    ax.set_title(result["title"])
+    ax.grid(alpha=0.15)
+
+    info_ax.legend(
+        handles=legend_items,
+        loc="upper left",
+        bbox_to_anchor=(0.0, 1.0),
+        frameon=False,
+        fontsize=8.7,
+        borderaxespad=0.0,
+        handlelength=2.4,
+        labelspacing=0.45,
+    )
+
+    control_lines = []
+    for dim, spec in enumerate(controls):
+        requested = float(control_axes[dim][indices[dim]])
+        actual = float(solutions["actual_controls"][indices + (dim,)])
+        label = _control_label(spec)
+        if np.isfinite(actual) and not np.isclose(
+            actual, requested, rtol=1e-8, atol=0.0
+        ):
+            control_lines.append(
+                f"{label:<12}= {_format_control_value(spec, actual)} "
+                f"(asked {_format_control_value(spec, requested)})"
+            )
         else:
-            diagnostic = "No converged PROCESS solution\n\n" + "\n".join(control_lines)
+            control_lines.append(
+                f"{label:<12}= {_format_control_value(spec, requested)}"
+            )
 
-        info_ax.text(
-            0.0, 0.52, diagnostic,
-            va='top', ha='left', fontsize=8.8, family='monospace', linespacing=1.18,
-        )
+    if converged:
+        diagnostic_lines = [
+            "Selected PROCESS solution",
+            "",
+            *control_lines,
+            "",
+            f"Te          = {exact_te:.3f} keV",
+            f"ne          = {exact_ne / 1e20:.3f} ×10²⁰ m⁻³",
+            f"{performance_spec['label']:<12}= {selected_perf:.4g}",
+        ]
+        if equalities:
+            eq_values = solutions["equality_residuals"][indices]
+            diagnostic_lines.append("")
+            diagnostic_lines.extend(
+                f"C{spec['constraint']} resid = {eq_values[q]:.2e}"
+                for q, spec in enumerate(equalities)
+            )
+        if limits:
+            margin_values = solutions["limit_margins"][indices]
+            diagnostic_lines.append("")
+            diagnostic_lines.append("Inequality margins (+ feasible, 0 active):")
+            diagnostic_lines.extend(
+                f"C{spec['constraint']:<3} margin = {margin_values[q]: .2e} "
+                f"{_limit_mark(margin_values[q])}"
+                for q, spec in enumerate(limits)
+            )
+        diagnostic = "\n".join(diagnostic_lines)
+    else:
+        diagnostic = "No converged PROCESS solution\n\n" + "\n".join(control_lines)
 
-        plt.show()
+    info_ax.text(
+        0.0,
+        0.52,
+        diagnostic,
+        va="top",
+        ha="left",
+        fontsize=8.8,
+        family="monospace",
+        linespacing=1.18,
+    )
 
+    plt.show()
+    return fig, ax
+
+
+def plot_jupyter_notebook_widgets(fig, axs, result):
+    """Use widgets to add sliders to the plot in a jupyter notebook.
+
+    NOTE: WIP!!
+    """
     widget_map = {}
     control_rows = []
 
     for i, (spec, axis) in enumerate(zip(controls, control_axes)):
         default_index = result["reference_indices"][i]
         default_value = float(axis[default_index])
-        widget = widgets.SelectionSlider(
-            options=[(_format_control_value(spec, float(value)), float(value)) for value in axis],
-            value=default_value,
-            description="",
-            continuous_update=True,
-            layout=widgets.Layout(width="335px", flex="0 0 335px"),
-        ) if widgets is not None else None
+        widget = (
+            widgets.SelectionSlider(
+                options=[
+                    (_format_control_value(spec, float(value)), float(value))
+                    for value in axis
+                ],
+                value=default_value,
+                description="",
+                continuous_update=True,
+                layout=widgets.Layout(width="335px", flex="0 0 335px"),
+            )
+            if widgets is not None
+            else None
+        )
 
         if widget is not None:
             # Keep the label outside SelectionSlider.  ipywidgets can render the
@@ -486,20 +577,20 @@ def show_response(
     if limits and widgets is not None:
         limits_widget = widgets.Checkbox(
             value=True,
-            description='Show limit contours',
+            description="Show limit contours",
             indent=False,
         )
-        widget_map['show_limits'] = limits_widget
+        widget_map["show_limits"] = limits_widget
 
     if widgets is None:
         selected = {
             f"control_{i}": float(axis[result["reference_indices"][i]])
             for i, axis in enumerate(control_axes)
         }
-        draw(show_limits=True, **selected)
+        plot_response(show_limits=True, **selected)
         return
 
-    output = widgets.interactive_output(draw, widget_map)
+    output = widgets.interactive_output(plot_response, widget_map)
 
     total_solutions = int(np.prod([len(axis) for axis in control_axes]))
     cloud_text = (
@@ -523,6 +614,7 @@ def show_response(
         ui.append(limits_widget)
 
     display(widgets.VBox(ui), output)
+
 
 def show_popcon(
     result: dict[str, Any],
@@ -675,9 +767,7 @@ def show_popcon(
 
         finite = np.isfinite(margins)
         feasible_nodes = (
-            converged
-            & np.all(finite, axis=2)
-            & np.all(margins >= 0.0, axis=2)
+            converged & np.all(finite, axis=2) & np.all(margins >= 0.0, axis=2)
         )
         violated_nodes = converged & np.any(finite & (margins < 0.0), axis=2)
 
@@ -754,7 +844,11 @@ def show_popcon(
         reference = result["reference"]
         ref_te = _to_float(reference.get("te"))
         ref_ne = _to_float(reference.get("ne"))
-        if reference.get("converged", False) and np.isfinite(ref_te) and np.isfinite(ref_ne):
+        if (
+            reference.get("converged", False)
+            and np.isfinite(ref_te)
+            and np.isfinite(ref_ne)
+        ):
             ref_ne20 = ref_ne / 1.0e20
             if te.min() <= ref_te <= te.max() and ne20.min() <= ref_ne20 <= ne20.max():
                 ax.scatter(
@@ -838,6 +932,7 @@ def show_popcon(
     )
     plt.show()
 
+
 def show_popcon_contours(
     result: dict[str, Any],
     **kwargs,
@@ -852,8 +947,9 @@ def show_popcon_contours(
     kwargs.setdefault("hatch_violations", False)
     return show_popcon(result, **kwargs)
 
+
 __all__ = [
-    "show_response",
     "show_popcon",
     "show_popcon_contours",
+    "show_response",
 ]
