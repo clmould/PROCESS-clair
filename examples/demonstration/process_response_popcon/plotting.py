@@ -956,8 +956,8 @@ def show_popcon_contours(
 
 
 __all__ = [
-    "plot_response",
     "plot_jupyter_notebook_widgets",
+    "plot_response",
     "show_popcon",
     "show_popcon_contours",
 ]

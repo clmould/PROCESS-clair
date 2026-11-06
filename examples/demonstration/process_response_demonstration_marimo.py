@@ -176,7 +176,7 @@ def _():
     file_handle = pymupdf.open(summary_file)
     for page_no in [
         5,
-        6,
+        23,
     ]:
         page = file_handle[page_no]
         page_img = page.get_pixmap()
