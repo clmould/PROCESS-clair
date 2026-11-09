@@ -286,7 +286,7 @@ dr_tf_wp_with_insulation = 0.5335701236383662 * radial thickness of winding pack
 dx_tf_turn_steel = 0.008000218958266584 * TF coil turn steel conduit case thickness (m) (`iteration variable 58`)
 dx_tf_wp_insulation = 0.008 * Thickness of the ground insulation layer surrounding (m)
 temp_cs_superconductor_margin_min = 1.5 * minimum allowable temperature margin ; CS (K)
-tmargmin = 1.5 * minimum allowable temperature margin ; TFC AND CS (K)
+temp_tf_superconductor_margin_min = 1.5 * minimum allowable temperature margin ; TF (K)
 v_tf_coil_dump_quench_max_kv = 10.0 * max voltage across TF coil during quench (kV) (`iteration variable 52`)
 f_a_tf_turn_cable_space_extra_void = 0.3 * coolant fraction of TFC 'cable' (`i_tf_sup=1`); or of TFC leg (`i_tf_sup=0`)
 

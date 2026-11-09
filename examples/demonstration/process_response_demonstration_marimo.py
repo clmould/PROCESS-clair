@@ -10,6 +10,8 @@ def _(mo):
     # import process, and the folders from example/demonstration/
     import subprocess
 
+    import marimo as mo
+
     subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
 
     from fsspec.implementations.github import GithubFileSystem
@@ -44,31 +46,6 @@ def _(mo):
 
     remote_files = process_repo.ls(folder_path)
     process_repo.get(remote_files, destination.as_posix(), recursive=True)
-
-
-# @app.cell(hide_code=True)
-# def _():
-#     import os
-#     import sys
-#     from pathlib import Path
-
-#     import marimo as mo
-
-#     # Find the local demonstration directory
-#     repo_root = Path.home() / "development" / "PROCESS"
-#     demo_dir = repo_root / "examples" / "demonstration"
-#     # Make relative paths (data/, figures/, etc.) work
-#     os.chdir(demo_dir)
-#     # Allow local Python modules to be imported
-#     if str(demo_dir) not in sys.path:
-#         sys.path.insert(0, str(demo_dir))
-#     # Check required directories exist
-#     for folder in ("data", "figures", "process_response_popcon"):
-#         path = demo_dir / folder
-#         if not path.is_dir():
-#             raise FileNotFoundError(f"Missing directory: {path}")
-#     print(f"Using local demonstration files from: {demo_dir}")
-#     return Path, mo
 
 
 @app.cell(hide_code=True)
