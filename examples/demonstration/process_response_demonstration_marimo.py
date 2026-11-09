@@ -12,15 +12,9 @@ def _(mo):
 
     subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
 
-    # subprocess.call(["pip", "install", "-q", "git+https://https://github.com/clmould/PROCESS-clair/tree/molab"])
-
     from fsspec.implementations.github import GithubFileSystem
 
-    # process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="5a81dac")
-    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="8ab91eb")
-
-    # INDAT_path = "github://examples/demonstration/data/large_tokamak_eval_IN.DAT"
-    # INDAT = process_repo.download(INDAT_path, "")
+    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="7f5fc26")
 
     import os
     from pathlib import Path
