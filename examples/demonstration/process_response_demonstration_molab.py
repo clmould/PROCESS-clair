@@ -672,7 +672,7 @@ def _(mo):
     - ⛽ **Fuelling** controls the fuel particle throughput and is coupled to the fusion reaction rate through the fuel-ion balance.
     - 💨 **Argon seeding** introduces a radiating impurity and changes how power is exhausted from the plasma.
 
-    Argon can reduce the power reaching the exhaust by increasing plasma radiation. However, it also changes **fuel dilution**, **$Z_{\mathrm{eff}}$**, and the overall plasma power balance.
+    Argon can reduce the power reaching the exhaust by increasing plasma radiation. However, it also changes **fuel effective charge**, **$Z_{\mathrm{eff}}$**, and the overall plasma power balance.
 
     The controls therefore interact:
 
