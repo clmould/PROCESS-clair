@@ -142,6 +142,7 @@ def _(mo):
     """)
 
 
+@app.cell(hide_code=True)
 def plot_plasma_overview():
     import matplotlib.pyplot as plt
     from process.core.io.mfile import MFile
@@ -149,21 +150,19 @@ def plot_plasma_overview():
         plot_main_plasma_information,
     )
 
-    mfile = MFile(single_run.mfile_path)
-
-    fig, ax = plt.subplots(figsize=(12, 10))
+    fig1, ax1 = plt.subplots(figsize=(12, 10))
 
     plot_main_plasma_information(
-        axis=ax,
-        mfile=mfile,
+        axis=ax1,
+        mfile=MFile(single_run.mfile_path),
         scan=-1,
         colour_scheme=1,
-        fig=fig,
+        fig=fig1,
     )
 
-    ax.set_aspect("equal", adjustable="box")
+    ax1.set_aspect("equal", adjustable="box")
 
-    return fig
+    return fig1
 
 
 plot_plasma_overview()
@@ -192,31 +191,25 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def plot_poloidal():
-    import matplotlib.pyplot as plt
-
-    from process.core.io.mfile import MFile
     from process.core.io.plot.summary.api import create_thickness_builds
     from process.core.io.plot.summary.geometry.poloidal import poloidal_cross_section
 
-    mfile = MFile(single_run.mfile_path)
-    scan = -1
-
     radial_build = create_thickness_builds(mfile, scan)
 
-    fig, ax = plt.subplots(figsize=(4, 6))
+    fig2, ax2 = plt.subplots(figsize=(4, 6))
 
     poloidal_cross_section(
-        axis=ax,
-        mfile=mfile,
-        scan=scan,
+        axis=ax2,
+        mfile=MFile(single_run.mfile_path),
+        scan=-1,
         demo_ranges=False,
         radial_build=radial_build,
         colour_scheme=1,
     )
 
-    ax.set_aspect("equal")
+    ax2.set_aspect("equal")
 
-    return fig
+    return fig2
 
 
 plot_poloidal()
@@ -224,28 +217,23 @@ plot_poloidal()
 
 @app.cell(hide_code=True)
 def plot_toroidal():
-    import matplotlib.pyplot as plt
-
-    from process.core.io.mfile import MFile
     from process.core.io.plot.summary.geometry.toroidal import (
         toroidal_cross_section,
     )
 
-    mfile = MFile(single_run.mfile_path)
-
-    fig, ax = plt.subplots(figsize=(4, 4))
+    fig3, ax3 = plt.subplots(figsize=(4, 4))
 
     toroidal_cross_section(
-        axis=ax,
-        mfile=mfile,
+        axis=ax3,
+        mfile=MFile(single_run.mfile_path),
         scan=-1,
         demo_ranges=False,
         colour_scheme=1,
     )
 
-    ax.set_aspect("equal")
+    ax3.set_aspect("equal")
 
-    return fig
+    return fig3
 
 
 plot_toroidal()
