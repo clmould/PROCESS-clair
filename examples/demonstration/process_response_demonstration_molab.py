@@ -14,6 +14,8 @@ def _(mo):
 
     subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
 
+    subprocess.call(["pip", "install", "pymupdf"])
+
     from fsspec.implementations.github import GithubFileSystem
 
     process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="500803ee")
@@ -131,6 +133,7 @@ def _(single_run):
 
 @app.cell
 def _():
+    # Save the relevant figures from the output pdf
     import pymupdf
 
     summary_file = "data/large_tokamak_eval_MFILE.DAT.SUMMARY.pdf"
