@@ -117,7 +117,7 @@ def _(mo):
 def _():
     from process.main import SingleRun
 
-    single_run = SingleRun("data/large_tokamak_eval_IN.DAT")
+    single_run = SingleRun("data/large_tokamak_eval_IN.DAT", update_obsolete=True)
     single_run.run()
     return (single_run,)
 
