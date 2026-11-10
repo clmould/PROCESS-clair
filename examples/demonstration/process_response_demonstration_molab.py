@@ -14,8 +14,6 @@ def _(mo):
 
     subprocess.call(["pip", "install", "-q", "git+https://github.com/ukaea/PROCESS"])
 
-    subprocess.call(["pip", "install", "pymupdf"])
-
     from fsspec.implementations.github import GithubFileSystem
 
     process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="ea0b7d8")
@@ -124,29 +122,6 @@ def _():
     return (single_run,)
 
 
-@app.cell
-def _(single_run):
-    from process.core.io.plot import plot_summary
-
-    plot_summary(single_run.mfile_path)
-
-
-@app.cell
-def _():
-    # Save the relevant figures from the output pdf
-    import pymupdf
-
-    summary_file = "data/large_tokamak_eval_MFILE.DAT.SUMMARY.pdf"
-    file_handle = pymupdf.open(summary_file)
-    for page_no in [
-        5,
-        25,
-    ]:
-        page = file_handle[page_no]
-        page_img = page.get_pixmap()
-        page_img.save(f"figures/summary_page_{page_no}.png")
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -167,12 +142,29 @@ def _(mo):
     """)
 
 
-@app.cell
-def _(mo):
-    mo.image(
-        "figures/summary_page_5.png",
-        caption="Integrated plasma, magnetic and systems quantities from one PROCESS design.",
+def _():
+    import matplotlib.pyplot as plt
+
+    from process.core.io.mfile import MFile
+    from process.core.io.plot.summary.plasma.overview import (
+        plot_main_plasma_information,
     )
+
+    mfile = MFile(single_run.mfile_path)
+
+    fig, ax = plt.subplots(figsize=(12, 10))
+    plot_main_plasma_information(
+        axis=ax,
+        mfile=mfile,
+        scan=-1,
+        colour_scheme=1,
+        fig=fig,
+    )
+    ax.set_aspect("equal", adjustable="box")
+    plt.show()
+
+
+_()
 
 
 @app.cell(hide_code=True)
@@ -196,20 +188,55 @@ def _(mo):
     """)
 
 
-@app.cell
-def _(mo):
-    mo.image(
-        "figures/summary_page_25.png",
-        caption="Poloidal cross-section of the tokamak showing major structural and magnetic systems.",
+def _():
+
+    import matplotlib.pyplot as plt
+    from process.core.io.mfile import MFile
+    from process.core.io.plot.summary.api import create_thickness_builds
+    from process.core.io.plot.summary.geometry.poloidal import poloidal_cross_section
+
+    mfile = MFile(single_run.mfile_path)
+    scan = -1
+    radial_build = create_thickness_builds(mfile, scan)
+    fig, ax = plt.subplots(figsize=(4, 6))
+    poloidal_cross_section(
+        axis=ax,
+        mfile=mfile,
+        scan=scan,
+        demo_ranges=False,
+        radial_build=radial_build,
+        colour_scheme=1,
     )
+    ax.set_aspect("equal")
+    plt.show()
 
 
-@app.cell
-def _(mo):
-    mo.image(
-        "figures/summary_page_26.png",
-        caption="Toroidal cross-section of the tokamak showing major structural and magnetic systems.",
+_()
+
+
+def _():
+    import matplotlib.pyplot as plt
+
+    from process.core.io.mfile import MFile
+    from process.core.io.plot.summary.geometry.toroidal import toroidal_cross_section
+
+    mfile = MFile(single_run.mfile_path)
+
+    fig, ax = plt.subplots(figsize=(4, 4))
+
+    toroidal_cross_section(
+        axis=ax,
+        mfile=mfile,
+        scan=-1,
+        demo_ranges=False,
+        colour_scheme=1,
     )
+
+    ax.set_aspect("equal")
+    return plt.show()
+
+
+_()
 
 
 @app.cell(hide_code=True)
