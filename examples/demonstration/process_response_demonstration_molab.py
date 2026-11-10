@@ -142,6 +142,7 @@ def _(mo):
     """)
 
 
+@app.cell(hide_code=True)
 def _():
     import matplotlib.pyplot as plt
 
@@ -188,6 +189,7 @@ def _(mo):
     """)
 
 
+@app.cell(hide_code=True)
 def _():
 
     import matplotlib.pyplot as plt
@@ -214,6 +216,7 @@ def _():
 _()
 
 
+@app.cell(hide_code=True)
 def _():
     import matplotlib.pyplot as plt
 
