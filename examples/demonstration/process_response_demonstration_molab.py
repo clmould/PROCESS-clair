@@ -99,18 +99,17 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.image(
-        "figures/Slide 7.png",
-        caption="A tokamak is coupled to the systems that convert fusion power into useful electrical output",
-    )
-
-
-@app.cell(hide_code=True)
-def _(mo):
     mo.md(r"""
-    #### Run PROCESS
+    #### Molab instructions
 
-    To initialise the notebook, we can run a normal PROCESS input file.
+    This notebook is run entirely in the browser using Molab.
+
+    - Register an account
+    - Click 'Run it now' button
+    - Click 'Run on server'
+    - Click the play button in the lower right
+
+    This notebook will now run PROCESS and plot the output in different ways.
     """)
 
 
@@ -121,15 +120,6 @@ def _():
     single_run = SingleRun("data/large_tokamak_eval_IN.DAT")
     single_run.run()
     return (single_run,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    #### Generate the standard summary
-
-    PROCESS can generate a summary PDF which contains data and plots to describe the fusion power plant we have designed. We call this here to generate figures for the notebook.
-    """)
 
 
 @app.cell
@@ -147,19 +137,11 @@ def _():
     file_handle = pymupdf.open(summary_file)
     for page_no in [
         5,
-        23,
+        25,
     ]:
         page = file_handle[page_no]
         page_img = page.get_pixmap()
         page_img.save(f"figures/summary_page_{page_no}.png")
-
-
-@app.cell
-def _(mo):
-    mo.image(
-        "figures/summary_page_5.png",
-        caption="Integrated plasma, magnetic and systems quantities from one PROCESS design.",
-    )
 
 
 @app.cell(hide_code=True)
@@ -180,6 +162,14 @@ def _(mo):
 
     A change to one part of the reactor can therefore propagate through many other systems.
     """)
+
+
+@app.cell
+def _(mo):
+    mo.image(
+        "figures/summary_page_5.png",
+        caption="Integrated plasma, magnetic and systems quantities from one PROCESS design.",
+    )
 
 
 @app.cell(hide_code=True)
@@ -206,8 +196,16 @@ def _(mo):
 @app.cell
 def _(mo):
     mo.image(
-        "figures/summary_page_23.png",
-        caption="Poloidal and toroidal cross-sections of the tokamak showing major structural and magnetic systems.",
+        "figures/summary_page_25.png",
+        caption="Poloidal cross-section of the tokamak showing major structural and magnetic systems.",
+    )
+
+
+@app.cell
+def _(mo):
+    mo.image(
+        "figures/summary_page_26.png",
+        caption="Toroidal cross-section of the tokamak showing major structural and magnetic systems.",
     )
 
 
@@ -742,7 +740,7 @@ def _(PLASMA_INPUT_FILE):
     REBUILD_IMPURITY_SOLUTIONS = False
     REBUILD_IMPURITY_MAPS = False
     PRECOMPUTE_IMPURITY_MAPS = True
-    IMPURITY_WORKERS = 2
+    IMPURITY_WORKERS = 8
     return (
         IMPURITY_CONTROLS,
         IMPURITY_INPUT_FILE,
@@ -932,6 +930,9 @@ def _(mo):
     ### PROCESS
 
     🔗 **PROCESS source code:** [github.com/ukaea/PROCESS](https\://github.com/ukaea/PROCESS)
+
+    ### Bluemira
+    🔗 **Bluemira source code:** [github.com/Fusion-Power-Plant-Framework/bluemira](https\://github.com/Fusion-Power-Plant-Framework/bluemira)
 
     ### Fusion Training Program
 
