@@ -107,7 +107,7 @@ def _(mo):
     - Register an account
     - Click 'Run it now' button
     - Click 'Run on server'
-    - Click the play button in the lower right
+    - Click the play button ▶️ in the lower right
 
     This notebook will now run PROCESS and plot the output in different ways.
     """)
