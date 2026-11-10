@@ -16,7 +16,7 @@ def _(mo):
 
     from fsspec.implementations.github import GithubFileSystem
 
-    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="406699f12")
+    process_repo = GithubFileSystem(org="ukaea", repo="PROCESS", sha="8aa2262")
 
     import os
     from pathlib import Path
