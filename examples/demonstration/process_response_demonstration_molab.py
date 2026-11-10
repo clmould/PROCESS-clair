@@ -143,7 +143,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def plot_plasma_overview():
+def _():
     import matplotlib.pyplot as plt
     from process.core.io.mfile import MFile
     from process.core.io.plot.summary.plasma.overview import (
@@ -162,10 +162,7 @@ def plot_plasma_overview():
 
     ax1.set_aspect("equal", adjustable="box")
 
-    return fig1
-
-
-plot_plasma_overview()
+    plt.show()
 
 
 @app.cell(hide_code=True)
@@ -190,11 +187,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def plot_poloidal():
+def _():
     from process.core.io.plot.summary.api import create_thickness_builds
     from process.core.io.plot.summary.geometry.poloidal import poloidal_cross_section
 
-    radial_build = create_thickness_builds(mfile, scan)
+    radial_build = create_thickness_builds(MFile(single_run.mfile_path), -1)
 
     fig2, ax2 = plt.subplots(figsize=(4, 6))
 
@@ -209,14 +206,11 @@ def plot_poloidal():
 
     ax2.set_aspect("equal")
 
-    return fig2
-
-
-plot_poloidal()
+    plt.show()
 
 
 @app.cell(hide_code=True)
-def plot_toroidal():
+def _():
     from process.core.io.plot.summary.geometry.toroidal import (
         toroidal_cross_section,
     )
@@ -233,10 +227,7 @@ def plot_toroidal():
 
     ax3.set_aspect("equal")
 
-    return fig3
-
-
-plot_toroidal()
+    plt.show()
 
 
 @app.cell(hide_code=True)
